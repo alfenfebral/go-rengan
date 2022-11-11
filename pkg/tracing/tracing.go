@@ -6,13 +6,11 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/uptrace/uptrace-go/uptrace"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/sdk/resource"
 	trace_sdk "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -32,23 +30,17 @@ func tracerProvider(url string) (*trace_sdk.TracerProvider, error) {
 		return nil, err
 	}
 
-	// Create the Jaeger exporter
-	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
-	if err != nil {
-		return nil, err
-	}
-
-	tp := trace_sdk.NewTracerProvider(
-		// Always be sure to batch in production.
-		trace_sdk.WithBatcher(exp),
-		// Record information about this application in a Resource.
-		trace_sdk.WithResource(resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String(os.Getenv("APP_NAME")),
-			attribute.String("environment", os.Getenv("ENV")),
+	uptrace.ConfigureOpentelemetry(
+		uptrace.WithDSN(url),
+		uptrace.WithServiceName(os.Getenv("APP_NAME")),
+		uptrace.WithServiceVersion("v0.0.1"),
+		uptrace.WithDeploymentEnvironment(os.Getenv("ENV")),
+		uptrace.WithResourceAttributes(
 			attribute.Int64("ID", appID),
-		)),
+		),
 	)
+
+	tp := uptrace.TracerProvider()
 
 	return tp, nil
 }
