@@ -22,6 +22,7 @@ func main() {
 
 	// Server
 	server, err := dep.InitializeServer()
+	defer server.Tp.ShutDown()
 	if err != nil {
 		logrus.Error(err)
 	}

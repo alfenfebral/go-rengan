@@ -9,6 +9,7 @@ import (
 	pkg_mongodb "go-rengan/pkg/mongodb"
 	pkg_server "go-rengan/pkg/server"
 	pkg_http_server "go-rengan/pkg/server/http"
+	pkg_tracing "go-rengan/pkg/tracing"
 	handlers "go-rengan/todo/delivery/http"
 	repository "go-rengan/todo/repository"
 	service "go-rengan/todo/service"
@@ -16,8 +17,9 @@ import (
 	"github.com/google/wire"
 )
 
-func InitializeServer() (pkg_server.Server, error) {
+func InitializeServer() (*pkg_server.ServerImpl, error) {
 	wire.Build(
+		pkg_tracing.NewTracing,
 		pkg_logger.NewLogger,
 		pkg_mongodb.NewMongoDB,
 		repository.NewMongoTodoRepository,

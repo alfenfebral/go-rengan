@@ -1,17 +1,18 @@
 package service
 
 import (
+	"context"
 	"go-rengan/todo/models"
 	"go-rengan/todo/repository"
 )
 
 // TodoService represent the todo service
 type TodoService interface {
-	GetAll(keyword string, limit int, offset int) ([]*models.Todo, int, error)
-	GetByID(id string) (*models.Todo, error)
-	Create(value *models.Todo) (*models.Todo, error)
-	Update(id string, value *models.Todo) (*models.Todo, error)
-	Delete(id string) error
+	GetAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, int, error)
+	GetByID(ctx context.Context, id string) (*models.Todo, error)
+	Create(ctx context.Context, value *models.Todo) (*models.Todo, error)
+	Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error)
+	Delete(ctx context.Context, id string) error
 }
 
 type TodoServiceImpl struct {
@@ -26,14 +27,14 @@ func NewTodoService(a repository.MongoTodoRepository) TodoService {
 }
 
 // GetAll - get all todo service
-func (a *TodoServiceImpl) GetAll(keyword string, limit int, offset int) ([]*models.Todo, int, error) {
-	res, err := a.todoRepo.FindAll(keyword, limit, offset)
+func (a *TodoServiceImpl) GetAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, int, error) {
+	res, err := a.todoRepo.FindAll(ctx, keyword, limit, offset)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	// Count total
-	total, err := a.todoRepo.CountFindAll(keyword)
+	total, err := a.todoRepo.CountFindAll(ctx, keyword)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -42,8 +43,8 @@ func (a *TodoServiceImpl) GetAll(keyword string, limit int, offset int) ([]*mode
 }
 
 // GetByID - get todo by id service
-func (a *TodoServiceImpl) GetByID(id string) (*models.Todo, error) {
-	res, err := a.todoRepo.FindById(id)
+func (a *TodoServiceImpl) GetByID(ctx context.Context, id string) (*models.Todo, error) {
+	res, err := a.todoRepo.FindById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +53,8 @@ func (a *TodoServiceImpl) GetByID(id string) (*models.Todo, error) {
 }
 
 // Create - creating todo service
-func (a *TodoServiceImpl) Create(value *models.Todo) (*models.Todo, error) {
-	res, err := a.todoRepo.Store(&models.Todo{
+func (a *TodoServiceImpl) Create(ctx context.Context, value *models.Todo) (*models.Todo, error) {
+	res, err := a.todoRepo.Store(ctx, &models.Todo{
 		Title:       value.Title,
 		Description: value.Description,
 	})
@@ -65,13 +66,13 @@ func (a *TodoServiceImpl) Create(value *models.Todo) (*models.Todo, error) {
 }
 
 // Update - update todo service
-func (a *TodoServiceImpl) Update(id string, value *models.Todo) (*models.Todo, error) {
-	_, err := a.todoRepo.CountFindByID(id)
+func (a *TodoServiceImpl) Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error) {
+	_, err := a.todoRepo.CountFindByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = a.todoRepo.Update(id, &models.Todo{
+	_, err = a.todoRepo.Update(ctx, id, &models.Todo{
 		Title:       value.Title,
 		Description: value.Description,
 	})
@@ -83,8 +84,8 @@ func (a *TodoServiceImpl) Update(id string, value *models.Todo) (*models.Todo, e
 }
 
 // Delete - delete todo service
-func (a *TodoServiceImpl) Delete(id string) error {
-	err := a.todoRepo.Delete(id)
+func (a *TodoServiceImpl) Delete(ctx context.Context, id string) error {
+	err := a.todoRepo.Delete(ctx, id)
 	if err != nil {
 		return err
 	}

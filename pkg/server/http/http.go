@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
+	"github.com/riandyrn/otelchi"
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,6 +32,7 @@ type HTTPServerImpl struct {
 
 func NewHTTPServer(logger pkg_logger.Logger, todoHandler handlers.TodoHTTPHandler) HTTPServer {
 	router := chi.NewRouter()
+	router.Use(otelchi.Middleware(os.Getenv("APP_NAME"), otelchi.WithChiRoutes(router)))
 	router.Use(
 		render.SetContentType(render.ContentTypeJSON), // Set content-Type headers as application/json
 		middleware.Logger, // Log API request calls
@@ -50,10 +52,14 @@ func NewHTTPServer(logger pkg_logger.Logger, todoHandler handlers.TodoHTTPHandle
 	// Register TodoHTTPHandler routes
 	todoHandler.RegisterRoutes(router)
 
-	return &HTTPServerImpl{
+	s := &HTTPServerImpl{
 		router: router,
 		logger: logger,
 	}
+
+	s.PrintAllRoutes()
+
+	return s
 }
 
 // PrintAllRoutes - Walk and print out all routes
@@ -72,8 +78,6 @@ func (s *HTTPServerImpl) PrintAllRoutes() {
 func (s *HTTPServerImpl) Run() error {
 	addr := fmt.Sprintf("%s%s", ":", os.Getenv("PORT"))
 	logrus.Infoln("HTTP server listening on", addr)
-
-	s.PrintAllRoutes()
 
 	router := s.GetRouter()
 	s.svr = &http.Server{

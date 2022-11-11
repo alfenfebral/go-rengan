@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"context"
 	"errors"
 	mockRepositories "go-rengan/todo/mocks/repository"
 	"go-rengan/todo/models"
@@ -22,10 +23,10 @@ func TestTodoGetAll(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("FindAll", mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(mockList, nil)
-		mockRepository.On("CountFindAll", mock.AnythingOfType("string")).Return(10, nil)
+		mockRepository.On("FindAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(mockList, nil)
+		mockRepository.On("CountFindAll", mock.Anything, mock.AnythingOfType("string")).Return(10, nil)
 
-		results, count, err := service.GetAll("keyword", 10, 0)
+		results, count, err := service.GetAll(context.Background(), "keyword", 10, 0)
 
 		assert.NoError(t, err)
 		assert.Equal(t, count, 10)
@@ -36,9 +37,9 @@ func TestTodoGetAll(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("FindAll", mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, ErrDefault)
-		mockRepository.On("CountFindAll", mock.AnythingOfType("string")).Return(10, nil)
-		results, count, err := service.GetAll("keyword", 10, 0)
+		mockRepository.On("FindAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, ErrDefault)
+		mockRepository.On("CountFindAll", mock.Anything, mock.AnythingOfType("string")).Return(10, nil)
+		results, count, err := service.GetAll(context.Background(), "keyword", 10, 0)
 
 		assert.Nil(t, results)
 		assert.Equal(t, 0, count)
@@ -49,10 +50,10 @@ func TestTodoGetAll(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("FindAll", mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, nil)
-		mockRepository.On("CountFindAll", mock.AnythingOfType("string")).Return(10, ErrDefault)
+		mockRepository.On("FindAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, nil)
+		mockRepository.On("CountFindAll", mock.Anything, mock.AnythingOfType("string")).Return(10, ErrDefault)
 
-		results, count, err := service.GetAll("keyword", 10, 0)
+		results, count, err := service.GetAll(context.Background(), "keyword", 10, 0)
 
 		assert.Nil(t, results)
 		assert.Equal(t, 0, count)
@@ -67,9 +68,9 @@ func TestTodoGetByID(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("FindById", mock.AnythingOfType("string")).Return(mockTodo, nil)
+		mockRepository.On("FindById", mock.Anything, mock.AnythingOfType("string")).Return(mockTodo, nil)
 
-		result, err := service.GetByID(DefaultID)
+		result, err := service.GetByID(context.Background(), DefaultID)
 
 		assert.NoError(t, err)
 		assert.Equal(t, mockTodo, result)
@@ -79,8 +80,8 @@ func TestTodoGetByID(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("FindById", mock.AnythingOfType("string")).Return(nil, ErrDefault)
-		result, err := service.GetByID(DefaultID)
+		mockRepository.On("FindById", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrDefault)
+		result, err := service.GetByID(context.Background(), DefaultID)
 
 		assert.Nil(t, result)
 		assert.Error(t, err)
@@ -94,9 +95,9 @@ func TestTodoCreate(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("Store", mock.AnythingOfType("*models.Todo")).Return(mockTodo, nil)
+		mockRepository.On("Store", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(mockTodo, nil)
 
-		result, err := service.Create(&models.Todo{})
+		result, err := service.Create(context.Background(), &models.Todo{})
 
 		assert.NoError(t, err)
 		assert.Equal(t, mockTodo, result)
@@ -106,8 +107,8 @@ func TestTodoCreate(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("Store", mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
-		result, err := service.Create(&models.Todo{})
+		mockRepository.On("Store", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
+		result, err := service.Create(context.Background(), &models.Todo{})
 
 		assert.Nil(t, result)
 		assert.Error(t, err)
@@ -121,10 +122,10 @@ func TestTodoUpdate(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("CountFindByID", mock.AnythingOfType("string")).Return(10, nil)
-		mockRepository.On("Update", mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(mockTodo, nil)
+		mockRepository.On("CountFindByID", mock.Anything, mock.AnythingOfType("string")).Return(10, nil)
+		mockRepository.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(mockTodo, nil)
 
-		result, err := service.Update(DefaultID, &models.Todo{})
+		result, err := service.Update(context.Background(), DefaultID, &models.Todo{})
 
 		assert.NoError(t, err)
 		assert.Nil(t, result)
@@ -134,10 +135,10 @@ func TestTodoUpdate(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("CountFindByID", mock.AnythingOfType("string")).Return(0, ErrDefault)
-		mockRepository.On("Update", mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, nil)
+		mockRepository.On("CountFindByID", mock.Anything, mock.AnythingOfType("string")).Return(0, ErrDefault)
+		mockRepository.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, nil)
 
-		result, err := service.Update(DefaultID, &models.Todo{})
+		result, err := service.Update(context.Background(), DefaultID, &models.Todo{})
 
 		assert.Nil(t, result)
 		assert.Error(t, err)
@@ -147,10 +148,10 @@ func TestTodoUpdate(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("CountFindByID", mock.AnythingOfType("string")).Return(10, nil)
-		mockRepository.On("Update", mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
+		mockRepository.On("CountFindByID", mock.Anything, mock.AnythingOfType("string")).Return(10, nil)
+		mockRepository.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
 
-		result, err := service.Update(DefaultID, &models.Todo{})
+		result, err := service.Update(context.Background(), DefaultID, &models.Todo{})
 
 		assert.Nil(t, result)
 		assert.Error(t, err)
@@ -162,9 +163,9 @@ func TestTodoDelete(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("Delete", mock.AnythingOfType("string")).Return(nil)
+		mockRepository.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(nil)
 
-		err := service.Delete(DefaultID)
+		err := service.Delete(context.Background(), DefaultID)
 
 		assert.NoError(t, err)
 	})
@@ -173,9 +174,9 @@ func TestTodoDelete(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		service := service.NewTodoService(mockRepository)
 
-		mockRepository.On("Delete", mock.AnythingOfType("string")).Return(ErrDefault)
+		mockRepository.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrDefault)
 
-		err := service.Delete(DefaultID)
+		err := service.Delete(context.Background(), DefaultID)
 
 		assert.Error(t, err)
 	})

@@ -12,12 +12,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:6666",
+					"raw": "http://localhost:3333",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "6666"
+					"port": "3333"
 				}
 			},
 			"response": []
@@ -28,12 +28,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:6666/todo",
+					"raw": "http://localhost:3333/todo",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "6666",
+					"port": "3333",
 					"path": [
 						"todo"
 					],
@@ -64,12 +64,12 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:6666/todo/:id",
+					"raw": "http://localhost:3333/todo/:id",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "6666",
+					"port": "3333",
 					"path": [
 						"todo",
 						":id"
@@ -99,12 +99,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:6666/todo",
+					"raw": "http://localhost:3333/todo",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "6666",
+					"port": "3333",
 					"path": [
 						"todo"
 					]
@@ -127,12 +127,12 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:6666/todo/:id",
+					"raw": "http://localhost:3333/todo/:id",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "6666",
+					"port": "3333",
 					"path": [
 						"todo",
 						":id"
@@ -153,12 +153,12 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:6666/todo/:id",
+					"raw": "http://localhost:3333/todo/:id",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "6666",
+					"port": "3333",
 					"path": [
 						"todo",
 						":id"

@@ -11,6 +11,7 @@ import (
 	"go-rengan/pkg/mongodb"
 	"go-rengan/pkg/server"
 	"go-rengan/pkg/server/http"
+	"go-rengan/pkg/tracing"
 	"go-rengan/todo/delivery/http"
 	"go-rengan/todo/repository"
 	"go-rengan/todo/service"
@@ -18,7 +19,11 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeServer() (server.Server, error) {
+func InitializeServer() (*server.ServerImpl, error) {
+	tracing, err := pkg_tracing.NewTracing()
+	if err != nil {
+		return nil, err
+	}
 	logger := pkg_logger.NewLogger()
 	mongoDB, err := mongodb.NewMongoDB()
 	if err != nil {
@@ -26,8 +31,8 @@ func InitializeServer() (server.Server, error) {
 	}
 	mongoTodoRepository := repository.NewMongoTodoRepository(mongoDB)
 	todoService := service.NewTodoService(mongoTodoRepository)
-	todoHTTPHandler := handlers.NewTodoHTTPHandler(todoService)
+	todoHTTPHandler := handlers.NewTodoHTTPHandler(tracing, todoService)
 	httpServer := pkg_http_server.NewHTTPServer(logger, todoHTTPHandler)
-	serverServer := server.NewServer(logger, httpServer)
-	return serverServer, nil
+	serverImpl := server.NewServer(tracing, logger, httpServer)
+	return serverImpl, nil
 }

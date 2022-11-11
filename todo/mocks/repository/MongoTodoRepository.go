@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	context "context"
 	models "go-rengan/todo/models"
 
 	mock "github.com/stretchr/testify/mock"
@@ -13,20 +14,20 @@ type MongoTodoRepository struct {
 	mock.Mock
 }
 
-// CountFindAll provides a mock function with given fields: keyword
-func (_m *MongoTodoRepository) CountFindAll(keyword string) (int, error) {
-	ret := _m.Called(keyword)
+// CountFindAll provides a mock function with given fields: ctx, keyword
+func (_m *MongoTodoRepository) CountFindAll(ctx context.Context, keyword string) (int, error) {
+	ret := _m.Called(ctx, keyword)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(string) int); ok {
-		r0 = rf(keyword)
+	if rf, ok := ret.Get(0).(func(context.Context, string) int); ok {
+		r0 = rf(ctx, keyword)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(keyword)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, keyword)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -34,20 +35,20 @@ func (_m *MongoTodoRepository) CountFindAll(keyword string) (int, error) {
 	return r0, r1
 }
 
-// CountFindByID provides a mock function with given fields: id
-func (_m *MongoTodoRepository) CountFindByID(id string) (int, error) {
-	ret := _m.Called(id)
+// CountFindByID provides a mock function with given fields: ctx, id
+func (_m *MongoTodoRepository) CountFindByID(ctx context.Context, id string) (int, error) {
+	ret := _m.Called(ctx, id)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(string) int); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, string) int); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -55,13 +56,13 @@ func (_m *MongoTodoRepository) CountFindByID(id string) (int, error) {
 	return r0, r1
 }
 
-// Delete provides a mock function with given fields: id
-func (_m *MongoTodoRepository) Delete(id string) error {
-	ret := _m.Called(id)
+// Delete provides a mock function with given fields: ctx, id
+func (_m *MongoTodoRepository) Delete(ctx context.Context, id string) error {
+	ret := _m.Called(ctx, id)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -69,13 +70,13 @@ func (_m *MongoTodoRepository) Delete(id string) error {
 	return r0
 }
 
-// FindAll provides a mock function with given fields: keyword, limit, offset
-func (_m *MongoTodoRepository) FindAll(keyword string, limit int, offset int) ([]*models.Todo, error) {
-	ret := _m.Called(keyword, limit, offset)
+// FindAll provides a mock function with given fields: ctx, keyword, limit, offset
+func (_m *MongoTodoRepository) FindAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, error) {
+	ret := _m.Called(ctx, keyword, limit, offset)
 
 	var r0 []*models.Todo
-	if rf, ok := ret.Get(0).(func(string, int, int) []*models.Todo); ok {
-		r0 = rf(keyword, limit, offset)
+	if rf, ok := ret.Get(0).(func(context.Context, string, int, int) []*models.Todo); ok {
+		r0 = rf(ctx, keyword, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*models.Todo)
@@ -83,8 +84,8 @@ func (_m *MongoTodoRepository) FindAll(keyword string, limit int, offset int) ([
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, int, int) error); ok {
-		r1 = rf(keyword, limit, offset)
+	if rf, ok := ret.Get(1).(func(context.Context, string, int, int) error); ok {
+		r1 = rf(ctx, keyword, limit, offset)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -92,13 +93,13 @@ func (_m *MongoTodoRepository) FindAll(keyword string, limit int, offset int) ([
 	return r0, r1
 }
 
-// FindById provides a mock function with given fields: id
-func (_m *MongoTodoRepository) FindById(id string) (*models.Todo, error) {
-	ret := _m.Called(id)
+// FindById provides a mock function with given fields: ctx, id
+func (_m *MongoTodoRepository) FindById(ctx context.Context, id string) (*models.Todo, error) {
+	ret := _m.Called(ctx, id)
 
 	var r0 *models.Todo
-	if rf, ok := ret.Get(0).(func(string) *models.Todo); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *models.Todo); ok {
+		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Todo)
@@ -106,8 +107,8 @@ func (_m *MongoTodoRepository) FindById(id string) (*models.Todo, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -115,13 +116,13 @@ func (_m *MongoTodoRepository) FindById(id string) (*models.Todo, error) {
 	return r0, r1
 }
 
-// Store provides a mock function with given fields: value
-func (_m *MongoTodoRepository) Store(value *models.Todo) (*models.Todo, error) {
-	ret := _m.Called(value)
+// Store provides a mock function with given fields: ctx, value
+func (_m *MongoTodoRepository) Store(ctx context.Context, value *models.Todo) (*models.Todo, error) {
+	ret := _m.Called(ctx, value)
 
 	var r0 *models.Todo
-	if rf, ok := ret.Get(0).(func(*models.Todo) *models.Todo); ok {
-		r0 = rf(value)
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Todo) *models.Todo); ok {
+		r0 = rf(ctx, value)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Todo)
@@ -129,8 +130,8 @@ func (_m *MongoTodoRepository) Store(value *models.Todo) (*models.Todo, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.Todo) error); ok {
-		r1 = rf(value)
+	if rf, ok := ret.Get(1).(func(context.Context, *models.Todo) error); ok {
+		r1 = rf(ctx, value)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -138,13 +139,13 @@ func (_m *MongoTodoRepository) Store(value *models.Todo) (*models.Todo, error) {
 	return r0, r1
 }
 
-// Update provides a mock function with given fields: id, value
-func (_m *MongoTodoRepository) Update(id string, value *models.Todo) (*models.Todo, error) {
-	ret := _m.Called(id, value)
+// Update provides a mock function with given fields: ctx, id, value
+func (_m *MongoTodoRepository) Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error) {
+	ret := _m.Called(ctx, id, value)
 
 	var r0 *models.Todo
-	if rf, ok := ret.Get(0).(func(string, *models.Todo) *models.Todo); ok {
-		r0 = rf(id, value)
+	if rf, ok := ret.Get(0).(func(context.Context, string, *models.Todo) *models.Todo); ok {
+		r0 = rf(ctx, id, value)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Todo)
@@ -152,8 +153,8 @@ func (_m *MongoTodoRepository) Update(id string, value *models.Todo) (*models.To
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, *models.Todo) error); ok {
-		r1 = rf(id, value)
+	if rf, ok := ret.Get(1).(func(context.Context, string, *models.Todo) error); ok {
+		r1 = rf(ctx, id, value)
 	} else {
 		r1 = ret.Error(1)
 	}

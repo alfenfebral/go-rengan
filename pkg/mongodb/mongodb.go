@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.opentelemetry.io/contrib/instrumentation/go.mongodb.org/mongo-driver/mongo/otelmongo"
 )
 
 type MongoDB interface {
@@ -24,6 +25,7 @@ func NewMongoDB() (MongoDB, error) {
 
 	uri := os.Getenv("DB_URL")
 	opts := options.Client()
+	opts.Monitor = otelmongo.NewMonitor()
 	opts.ApplyURI(uri)
 	client, err := mongo.NewClient(opts)
 	if err != nil {

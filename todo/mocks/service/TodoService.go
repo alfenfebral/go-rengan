@@ -3,6 +3,7 @@
 package mocks
 
 import (
+	context "context"
 	models "go-rengan/todo/models"
 
 	mock "github.com/stretchr/testify/mock"
@@ -13,13 +14,13 @@ type TodoService struct {
 	mock.Mock
 }
 
-// Create provides a mock function with given fields: value
-func (_m *TodoService) Create(value *models.Todo) (*models.Todo, error) {
-	ret := _m.Called(value)
+// Create provides a mock function with given fields: ctx, value
+func (_m *TodoService) Create(ctx context.Context, value *models.Todo) (*models.Todo, error) {
+	ret := _m.Called(ctx, value)
 
 	var r0 *models.Todo
-	if rf, ok := ret.Get(0).(func(*models.Todo) *models.Todo); ok {
-		r0 = rf(value)
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Todo) *models.Todo); ok {
+		r0 = rf(ctx, value)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Todo)
@@ -27,8 +28,8 @@ func (_m *TodoService) Create(value *models.Todo) (*models.Todo, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.Todo) error); ok {
-		r1 = rf(value)
+	if rf, ok := ret.Get(1).(func(context.Context, *models.Todo) error); ok {
+		r1 = rf(ctx, value)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -36,13 +37,13 @@ func (_m *TodoService) Create(value *models.Todo) (*models.Todo, error) {
 	return r0, r1
 }
 
-// Delete provides a mock function with given fields: id
-func (_m *TodoService) Delete(id string) error {
-	ret := _m.Called(id)
+// Delete provides a mock function with given fields: ctx, id
+func (_m *TodoService) Delete(ctx context.Context, id string) error {
+	ret := _m.Called(ctx, id)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -50,13 +51,13 @@ func (_m *TodoService) Delete(id string) error {
 	return r0
 }
 
-// GetAll provides a mock function with given fields: keyword, limit, offset
-func (_m *TodoService) GetAll(keyword string, limit int, offset int) ([]*models.Todo, int, error) {
-	ret := _m.Called(keyword, limit, offset)
+// GetAll provides a mock function with given fields: ctx, keyword, limit, offset
+func (_m *TodoService) GetAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, int, error) {
+	ret := _m.Called(ctx, keyword, limit, offset)
 
 	var r0 []*models.Todo
-	if rf, ok := ret.Get(0).(func(string, int, int) []*models.Todo); ok {
-		r0 = rf(keyword, limit, offset)
+	if rf, ok := ret.Get(0).(func(context.Context, string, int, int) []*models.Todo); ok {
+		r0 = rf(ctx, keyword, limit, offset)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*models.Todo)
@@ -64,15 +65,15 @@ func (_m *TodoService) GetAll(keyword string, limit int, offset int) ([]*models.
 	}
 
 	var r1 int
-	if rf, ok := ret.Get(1).(func(string, int, int) int); ok {
-		r1 = rf(keyword, limit, offset)
+	if rf, ok := ret.Get(1).(func(context.Context, string, int, int) int); ok {
+		r1 = rf(ctx, keyword, limit, offset)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, int, int) error); ok {
-		r2 = rf(keyword, limit, offset)
+	if rf, ok := ret.Get(2).(func(context.Context, string, int, int) error); ok {
+		r2 = rf(ctx, keyword, limit, offset)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -80,13 +81,13 @@ func (_m *TodoService) GetAll(keyword string, limit int, offset int) ([]*models.
 	return r0, r1, r2
 }
 
-// GetByID provides a mock function with given fields: id
-func (_m *TodoService) GetByID(id string) (*models.Todo, error) {
-	ret := _m.Called(id)
+// GetByID provides a mock function with given fields: ctx, id
+func (_m *TodoService) GetByID(ctx context.Context, id string) (*models.Todo, error) {
+	ret := _m.Called(ctx, id)
 
 	var r0 *models.Todo
-	if rf, ok := ret.Get(0).(func(string) *models.Todo); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, string) *models.Todo); ok {
+		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Todo)
@@ -94,8 +95,8 @@ func (_m *TodoService) GetByID(id string) (*models.Todo, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -103,13 +104,13 @@ func (_m *TodoService) GetByID(id string) (*models.Todo, error) {
 	return r0, r1
 }
 
-// Update provides a mock function with given fields: id, value
-func (_m *TodoService) Update(id string, value *models.Todo) (*models.Todo, error) {
-	ret := _m.Called(id, value)
+// Update provides a mock function with given fields: ctx, id, value
+func (_m *TodoService) Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error) {
+	ret := _m.Called(ctx, id, value)
 
 	var r0 *models.Todo
-	if rf, ok := ret.Get(0).(func(string, *models.Todo) *models.Todo); ok {
-		r0 = rf(id, value)
+	if rf, ok := ret.Get(0).(func(context.Context, string, *models.Todo) *models.Todo); ok {
+		r0 = rf(ctx, id, value)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Todo)
@@ -117,8 +118,8 @@ func (_m *TodoService) Update(id string, value *models.Todo) (*models.Todo, erro
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, *models.Todo) error); ok {
-		r1 = rf(id, value)
+	if rf, ok := ret.Get(1).(func(context.Context, string, *models.Todo) error); ok {
+		r1 = rf(ctx, id, value)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"os"
-	"time"
 
 	pkg_mongodb "go-rengan/pkg/mongodb"
 
@@ -18,13 +17,13 @@ import (
 
 // MongoTodoRepository represent the todo repository contract
 type MongoTodoRepository interface {
-	FindAll(keyword string, limit int, offset int) ([]*models.Todo, error)
-	CountFindAll(keyword string) (int, error)
-	FindById(id string) (*models.Todo, error)
-	CountFindByID(id string) (int, error)
-	Store(value *models.Todo) (*models.Todo, error)
-	Update(id string, value *models.Todo) (*models.Todo, error)
-	Delete(id string) error
+	FindAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, error)
+	CountFindAll(ctx context.Context, keyword string) (int, error)
+	FindById(ctx context.Context, id string) (*models.Todo, error)
+	CountFindByID(ctx context.Context, id string) (int, error)
+	Store(ctx context.Context, value *models.Todo) (*models.Todo, error)
+	Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error)
+	Delete(ctx context.Context, id string) error
 }
 
 type MongoTodoRepositoryImpl struct {
@@ -39,10 +38,7 @@ func NewMongoTodoRepository(mongoDB pkg_mongodb.MongoDB) MongoTodoRepository {
 }
 
 // FindAll - find all todo
-func (m *MongoTodoRepositoryImpl) FindAll(keyword string, limit int, offset int) ([]*models.Todo, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (m *MongoTodoRepositoryImpl) FindAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, error) {
 	var results []*models.Todo
 
 	// Pass these options to the Find method
@@ -82,10 +78,7 @@ func (m *MongoTodoRepositoryImpl) FindAll(keyword string, limit int, offset int)
 }
 
 // CountFindAll - count find all todo
-func (m *MongoTodoRepositoryImpl) CountFindAll(keyword string) (int, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (m *MongoTodoRepositoryImpl) CountFindAll(ctx context.Context, keyword string) (int, error) {
 	client := m.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
@@ -98,10 +91,7 @@ func (m *MongoTodoRepositoryImpl) CountFindAll(keyword string) (int, error) {
 }
 
 // FindById - find todo by id
-func (m *MongoTodoRepositoryImpl) FindById(id string) (*models.Todo, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (m *MongoTodoRepositoryImpl) FindById(ctx context.Context, id string) (*models.Todo, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, errors.New("not found")
@@ -124,10 +114,7 @@ func (m *MongoTodoRepositoryImpl) FindById(id string) (*models.Todo, error) {
 }
 
 // CountFindByID - find count todo by id
-func (m *MongoTodoRepositoryImpl) CountFindByID(id string) (int, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (m *MongoTodoRepositoryImpl) CountFindByID(ctx context.Context, id string) (int, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return 0, errors.New("not found")
@@ -148,10 +135,7 @@ func (m *MongoTodoRepositoryImpl) CountFindByID(id string) (int, error) {
 }
 
 // Store - store todo
-func (m *MongoTodoRepositoryImpl) Store(value *models.Todo) (*models.Todo, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (m *MongoTodoRepositoryImpl) Store(ctx context.Context, value *models.Todo) (*models.Todo, error) {
 	client := m.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
@@ -178,10 +162,7 @@ func (m *MongoTodoRepositoryImpl) Store(value *models.Todo) (*models.Todo, error
 }
 
 // Update - update todo by id
-func (m *MongoTodoRepositoryImpl) Update(id string, value *models.Todo) (*models.Todo, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (m *MongoTodoRepositoryImpl) Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, errors.New("not found")
@@ -209,10 +190,7 @@ func (m *MongoTodoRepositoryImpl) Update(id string, value *models.Todo) (*models
 }
 
 // Delete - delete todo by id
-func (m *MongoTodoRepositoryImpl) Delete(id string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
+func (m *MongoTodoRepositoryImpl) Delete(ctx context.Context, id string) error {
 	client := m.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
