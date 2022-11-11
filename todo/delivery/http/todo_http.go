@@ -24,15 +24,15 @@ type TodoHTTPHandler interface {
 }
 
 type TodoHTTPHandlerImpl struct {
-	todoService service.TodoService
 	tp          pkg_tracing.Tracing
+	todoService service.TodoService
 }
 
 // NewTodoHTTPHandler - make http handler
 func NewTodoHTTPHandler(tp pkg_tracing.Tracing, service service.TodoService) TodoHTTPHandler {
 	return &TodoHTTPHandlerImpl{
-		todoService: service,
 		tp:          tp,
+		todoService: service,
 	}
 }
 
@@ -93,7 +93,7 @@ func (h *TodoHTTPHandlerImpl) GetAll(w http.ResponseWriter, r *http.Request) {
 
 // GetByID - get todo by id http handler
 func (h *TodoHTTPHandlerImpl) GetByID(w http.ResponseWriter, r *http.Request) {
-	ctx, span := h.tp.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.GetAll")
+	ctx, span := h.tp.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.GetByID")
 	defer span.End()
 
 	// Get and filter id param
@@ -121,7 +121,7 @@ func (h *TodoHTTPHandlerImpl) GetByID(w http.ResponseWriter, r *http.Request) {
 
 // Create - create todo http handler
 func (h *TodoHTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
-	ctx, span := h.tp.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.GetAll")
+	ctx, span := h.tp.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.Create")
 	defer span.End()
 
 	data := &models.TodoRequest{}
@@ -155,7 +155,7 @@ func (h *TodoHTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 
 // Update - update todo by id http handler
 func (h *TodoHTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Request) {
-	ctx, span := h.tp.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.GetAll")
+	ctx, span := h.tp.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.Update")
 	defer span.End()
 
 	// Get and filter id param
@@ -201,7 +201,7 @@ func (h *TodoHTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Request) {
 
 // Delete - delete todo by id http handler
 func (h *TodoHTTPHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {
-	ctx, span := h.tp.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.GetAll")
+	ctx, span := h.tp.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.Delete")
 	defer span.End()
 
 	// Get and filter id param

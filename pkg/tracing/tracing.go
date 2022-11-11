@@ -18,6 +18,7 @@ type Tracing interface {
 	GetTracerProvider() *trace_sdk.TracerProvider
 	ShutDown()
 	LogError(span trace.Span, err error)
+	Tracer(name string) trace.Tracer
 }
 
 type TracingImpl struct {
@@ -76,4 +77,8 @@ func (t *TracingImpl) LogError(span trace.Span, err error) {
 		attribute.Key("error").Bool(true),
 	)
 	span.RecordError(err)
+}
+
+func (t *TracingImpl) Tracer(name string) trace.Tracer {
+	return otel.Tracer(name)
 }
