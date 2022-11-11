@@ -19,6 +19,7 @@ import (
 type Tracing interface {
 	GetTracerProvider() *trace_sdk.TracerProvider
 	ShutDown()
+	LogError(span trace.Span, err error)
 }
 
 type TracingImpl struct {

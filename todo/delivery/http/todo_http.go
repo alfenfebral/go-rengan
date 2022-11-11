@@ -61,6 +61,7 @@ func (h *TodoHTTPHandlerImpl) GetAll(w http.ResponseWriter, r *http.Request) {
 		PerPage: perPageQuery,
 	})
 	if err != nil {
+		h.tp.LogError(span, err)
 
 		response.ResponseErrorValidation(w, r, err)
 		return
@@ -72,6 +73,8 @@ func (h *TodoHTTPHandlerImpl) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	results, totalData, err := h.todoService.GetAll(ctx, qQuery, perPage, offset)
 	if err != nil {
+		h.tp.LogError(span, err)
+
 		response.ResponseError(w, r, err)
 		return
 	}
@@ -99,6 +102,8 @@ func (h *TodoHTTPHandlerImpl) GetByID(w http.ResponseWriter, r *http.Request) {
 	// Get detail
 	result, err := h.todoService.GetByID(ctx, id)
 	if err != nil {
+		h.tp.LogError(span, err)
+
 		if err.Error() == "not found" {
 			response.ResponseNotFound(w, r, "Item not found")
 			return
@@ -121,6 +126,8 @@ func (h *TodoHTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 
 	data := &models.TodoRequest{}
 	if err := render.Bind(r, data); err != nil {
+		h.tp.LogError(span, err)
+
 		if err.Error() == "EOF" {
 			response.ResponseBodyError(w, r, err)
 			return
@@ -135,6 +142,8 @@ func (h *TodoHTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 		Description: data.Description,
 	})
 	if err != nil {
+		h.tp.LogError(span, err)
+
 		response.ResponseError(w, r, err)
 		return
 	}
@@ -154,6 +163,8 @@ func (h *TodoHTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Request) {
 
 	data := &models.TodoRequest{}
 	if err := render.Bind(r, data); err != nil {
+		h.tp.LogError(span, err)
+
 		if err.Error() == "EOF" {
 			response.ResponseBodyError(w, r, err)
 			return
@@ -170,6 +181,8 @@ func (h *TodoHTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
+		h.tp.LogError(span, err)
+
 		if err.Error() == "not found" {
 			response.ResponseNotFound(w, r, "Item not found")
 			return
@@ -197,6 +210,8 @@ func (h *TodoHTTPHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {
 	// Delete record
 	err := h.todoService.Delete(ctx, id)
 	if err != nil {
+		h.tp.LogError(span, err)
+
 		if err.Error() == "not found" {
 			response.ResponseNotFound(w, r, "Item not found")
 			return
