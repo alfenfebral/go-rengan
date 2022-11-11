@@ -10,7 +10,7 @@ import (
 	pkg_server "go-rengan/pkg/server"
 	pkg_http_server "go-rengan/pkg/server/http"
 	pkg_tracing "go-rengan/pkg/tracing"
-	handlers "go-rengan/todo/delivery/http"
+	todo_http "go-rengan/todo/delivery/http"
 	repository "go-rengan/todo/repository"
 	service "go-rengan/todo/service"
 
@@ -25,7 +25,7 @@ func InitializeServer() (*pkg_server.ServerImpl, error) {
 		repository.NewMongoTodoRepository,
 		service.NewTodoService,
 		pkg_http_server.NewHTTPServer,
-		handlers.NewTodoHTTPHandler,
+		todo_http.NewTodoHTTPHandler,
 		pkg_server.NewServer,
 	)
 

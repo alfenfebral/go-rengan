@@ -7,7 +7,7 @@ import (
 	"os"
 
 	pkg_logger "go-rengan/pkg/logger"
-	handlers "go-rengan/todo/delivery/http"
+	todo_http "go-rengan/todo/delivery/http"
 	response "go-rengan/utils/response"
 
 	"github.com/go-chi/chi/v5"
@@ -30,7 +30,7 @@ type HTTPServerImpl struct {
 	logger pkg_logger.Logger
 }
 
-func NewHTTPServer(logger pkg_logger.Logger, todoHandler handlers.TodoHTTPHandler) HTTPServer {
+func NewHTTPServer(logger pkg_logger.Logger, todoHandler todo_http.TodoHTTPHandler) HTTPServer {
 	router := chi.NewRouter()
 	router.Use(otelchi.Middleware(os.Getenv("APP_NAME"), otelchi.WithChiRoutes(router)))
 	router.Use(

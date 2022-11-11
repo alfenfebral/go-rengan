@@ -1,4 +1,4 @@
-package handlers
+package todo_http
 
 import (
 	"net/http"

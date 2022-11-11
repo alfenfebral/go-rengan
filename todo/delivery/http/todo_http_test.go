@@ -1,4 +1,4 @@
-package handlers_test
+package todo_http_test
 
 import (
 	"bytes"
@@ -10,9 +10,9 @@ import (
 	"testing"
 
 	pkg_validator "go-rengan/pkg/validator"
-	handlers "go-rengan/todo/delivery/http"
 
 	pkg_tracing "go-rengan/pkg/tracing"
+	todo_http "go-rengan/todo/delivery/http"
 	mockService "go-rengan/todo/mocks/service"
 
 	"go-rengan/todo/models"
@@ -44,7 +44,7 @@ func TestNewTodoHTTPHandler(t *testing.T) {
 	mockService := new(mockService.TodoService)
 	mockService.On("Create", mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
 
-	handler := handlers.NewTodoHTTPHandler(tracing, mockService)
+	handler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 	router := chi.NewMux()
 	handler.RegisterRoutes(router)
 }
@@ -66,7 +66,7 @@ func TestTodoGetAll(t *testing.T) {
 
 		mockService := new(mockService.TodoService)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetAll)
@@ -93,7 +93,7 @@ func TestTodoGetAll(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, 1, ErrDefault)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetAll)
@@ -123,7 +123,7 @@ func TestTodoGetAll(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(mockListTodo, 1, nil)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetAll)
@@ -155,7 +155,7 @@ func TestTodoCreate(t *testing.T) {
 
 		mockService := new(mockService.TodoService)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Create)
@@ -184,7 +184,7 @@ func TestTodoCreate(t *testing.T) {
 
 		mockService := new(mockService.TodoService)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Create)
@@ -214,7 +214,7 @@ func TestTodoCreate(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("Create", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(nil, errors.New(""))
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Create)
@@ -247,7 +247,7 @@ func TestTodoCreate(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("Create", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Create)
@@ -280,7 +280,7 @@ func TestTodoGetByID(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrNotFound)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetByID)
@@ -306,7 +306,7 @@ func TestTodoGetByID(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrDefault)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetByID)
@@ -332,7 +332,7 @@ func TestTodoGetByID(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(&models.Todo{}, nil)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetByID)
@@ -365,7 +365,7 @@ func TestTodoUpdate(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Update)
@@ -393,7 +393,7 @@ func TestTodoUpdate(t *testing.T) {
 
 		mockService := new(mockService.TodoService)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Update)
@@ -425,7 +425,7 @@ func TestTodoUpdate(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrNotFound)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Update)
@@ -457,7 +457,7 @@ func TestTodoUpdate(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Update)
@@ -489,7 +489,7 @@ func TestTodoUpdate(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Update)
@@ -522,7 +522,7 @@ func TestTodoDelete(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrNotFound)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Delete)
@@ -544,7 +544,7 @@ func TestTodoDelete(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrDefault)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Delete)
@@ -570,7 +570,7 @@ func TestTodoDelete(t *testing.T) {
 		mockService := new(mockService.TodoService)
 		mockService.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(nil)
 
-		todoHandler := handlers.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Delete)

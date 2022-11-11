@@ -31,7 +31,7 @@ func InitializeServer() (*server.ServerImpl, error) {
 	}
 	mongoTodoRepository := repository.NewMongoTodoRepository(mongoDB)
 	todoService := service.NewTodoService(mongoTodoRepository)
-	todoHTTPHandler := handlers.NewTodoHTTPHandler(tracing, todoService)
+	todoHTTPHandler := todo_http.NewTodoHTTPHandler(tracing, todoService)
 	httpServer := pkg_http_server.NewHTTPServer(logger, todoHTTPHandler)
 	serverImpl := server.NewServer(tracing, logger, httpServer)
 	return serverImpl, nil
