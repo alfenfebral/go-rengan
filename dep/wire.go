@@ -5,6 +5,7 @@
 package dep
 
 import (
+	pkg_amqp "go-rengan/pkg/amqp"
 	pkg_logger "go-rengan/pkg/logger"
 	pkg_mongodb "go-rengan/pkg/mongodb"
 	pkg_server "go-rengan/pkg/server"
@@ -19,6 +20,7 @@ import (
 
 func InitializeServer() (*pkg_server.ServerImpl, error) {
 	wire.Build(
+		pkg_amqp.NewAMQP,
 		pkg_tracing.NewTracing,
 		pkg_logger.NewLogger,
 		pkg_mongodb.NewMongoDB,

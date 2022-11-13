@@ -22,10 +22,18 @@ func main() {
 
 	// Server
 	server, err := dep.InitializeServer()
-	defer server.Tp.ShutDown()
 	if err != nil {
 		logrus.Error(err)
 	}
+
+	defer server.Tp.ShutDown()
+	defer server.AMQP.Get().Close()
+	defer func() {
+		if err := server.MongoDB.Disconnect(); err != nil {
+			logrus.Error(err)
+		}
+	}()
+
 	go func() {
 		err := server.Run()
 		if err != nil {

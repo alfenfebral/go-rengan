@@ -7,6 +7,7 @@
 package dep
 
 import (
+	"go-rengan/pkg/amqp"
 	"go-rengan/pkg/logger"
 	"go-rengan/pkg/mongodb"
 	"go-rengan/pkg/server"
@@ -25,6 +26,10 @@ func InitializeServer() (*server.ServerImpl, error) {
 		return nil, err
 	}
 	logger := pkg_logger.NewLogger()
+	amqp, err := pkg_amqp.NewAMQP()
+	if err != nil {
+		return nil, err
+	}
 	mongoDB, err := mongodb.NewMongoDB()
 	if err != nil {
 		return nil, err
@@ -33,6 +38,6 @@ func InitializeServer() (*server.ServerImpl, error) {
 	todoService := service.NewTodoService(tracing, mongoTodoRepository)
 	todoHTTPHandler := todo_http.NewTodoHTTPHandler(tracing, todoService)
 	httpServer := pkg_http_server.NewHTTPServer(logger, todoHTTPHandler)
-	serverImpl := server.NewServer(tracing, logger, httpServer)
+	serverImpl := server.NewServer(tracing, logger, amqp, mongoDB, httpServer)
 	return serverImpl, nil
 }
