@@ -6,6 +6,7 @@ Go codebase with oil
 - MongoDB
 - Opentelemetry
 - Uptrace
+- RabbitMQ
 ## Run
 Run Uptrace with docker compose
 ```bash
