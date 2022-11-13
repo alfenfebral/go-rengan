@@ -13,9 +13,11 @@ import (
 
 type MongoDB interface {
 	Get() *mongo.Client
+	Disconnect() error
 }
 
 type MongoDBImpl struct {
+	ctx    context.Context
 	client *mongo.Client
 }
 
@@ -25,7 +27,7 @@ func NewMongoDB() (MongoDB, error) {
 
 	uri := os.Getenv("DB_URL")
 	opts := options.Client()
-	opts.Monitor = otelmongo.NewMonitor()
+	opts.Monitor = otelmongo.NewMonitor() // add mongo opentelemetry tracing
 	opts.ApplyURI(uri)
 	client, err := mongo.NewClient(opts)
 	if err != nil {
@@ -34,11 +36,12 @@ func NewMongoDB() (MongoDB, error) {
 
 	err = client.Connect(ctx)
 	if err != nil {
+		logrus.Error("cannot connect")
 		return nil, err
 	}
 
 	// Checking the connection
-	err = client.Ping(context.TODO(), nil)
+	err = client.Ping(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -46,10 +49,19 @@ func NewMongoDB() (MongoDB, error) {
 	logrus.Println("Mongo Database connected")
 
 	return &MongoDBImpl{
+		ctx:    ctx,
 		client: client,
 	}, err
 }
 
 func (m *MongoDBImpl) Get() *mongo.Client {
 	return m.client
+}
+
+func (m *MongoDBImpl) Disconnect() error {
+	if err := m.client.Disconnect(m.ctx); err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -2,7 +2,9 @@ package server
 
 import (
 	"context"
+	pkg_amqp "go-rengan/pkg/amqp"
 	pkg_logger "go-rengan/pkg/logger"
+	pkg_mongodb "go-rengan/pkg/mongodb"
 	pkg_http_server "go-rengan/pkg/server/http"
 	pkg_tracing "go-rengan/pkg/tracing"
 
@@ -13,17 +15,23 @@ type ServerImpl struct {
 	httpServer pkg_http_server.HTTPServer
 	logger     pkg_logger.Logger
 	Tp         pkg_tracing.Tracing
+	AMQP       pkg_amqp.AMQP
+	MongoDB    pkg_mongodb.MongoDB
 }
 
 func NewServer(
 	tp pkg_tracing.Tracing,
 	logger pkg_logger.Logger,
+	amqp pkg_amqp.AMQP,
+	mongoDB pkg_mongodb.MongoDB,
 	httpServer pkg_http_server.HTTPServer,
 ) *ServerImpl {
 	return &ServerImpl{
 		httpServer: httpServer,
 		logger:     logger,
 		Tp:         tp,
+		AMQP:       amqp,
+		MongoDB:    mongoDB,
 	}
 }
 
