@@ -35,6 +35,7 @@ var WhenSuccess200OK string = "when return 200 ok"
 func TestNewTodoHTTPHandler(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
+	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	pkg_validator.NewValidator()
 
@@ -53,6 +54,7 @@ func TestNewTodoHTTPHandler(t *testing.T) {
 func TestTodoGetAll(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
+	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	t.Run(WhenError400Validation, func(t *testing.T) {
 		pkg_validator.NewValidator()
@@ -142,6 +144,7 @@ func TestTodoGetAll(t *testing.T) {
 func TestTodoCreate(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
+	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	t.Run(WhenError400EOF, func(t *testing.T) {
 		pkg_validator.NewValidator()
@@ -266,6 +269,7 @@ func TestTodoCreate(t *testing.T) {
 func TestTodoGetByID(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
+	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	t.Run(WhenError404NotFound, func(t *testing.T) {
 		pkg_validator.NewValidator()
@@ -351,6 +355,7 @@ func TestTodoGetByID(t *testing.T) {
 func TestTodoUpdate(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
+	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	t.Run(WhenError400EOF, func(t *testing.T) {
 		pkg_validator.NewValidator()
@@ -508,6 +513,7 @@ func TestTodoUpdate(t *testing.T) {
 func TestTodoDelete(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
+	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	t.Run(WhenError404NotFound, func(t *testing.T) {
 		pkg_validator.NewValidator()
