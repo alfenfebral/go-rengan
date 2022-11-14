@@ -1,6 +1,6 @@
 
 # Go-rengan
-Go codebase with oil
+Go codebase deep fry with oil
 ## Stack
 - Chi (net/http)
 - MongoDB
