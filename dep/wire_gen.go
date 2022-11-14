@@ -17,6 +17,7 @@ import (
 	"go-rengan/todo/delivery/http"
 	"go-rengan/todo/repository"
 	"go-rengan/todo/service"
+	"go-rengan/todo/service/amqp"
 )
 
 // Injectors from wire.go:
@@ -31,7 +32,8 @@ func InitializeServer() (*server.ServerImpl, error) {
 	if err != nil {
 		return nil, err
 	}
-	todoAMQPConsumer := todo_amqp.NewTodoAMQPConsumer(logger, tracing, amqp)
+	todoAMQPConsumer := todo_amqp_delivery.NewTodoAMQPConsumer(logger, tracing, amqp)
+	todoAMQPPublisher := todo_amqp_service.NewTodoAMQPPublisher(logger, tracing, amqp)
 	mongoDB, err := mongodb.NewMongoDB()
 	if err != nil {
 		return nil, err
@@ -40,6 +42,6 @@ func InitializeServer() (*server.ServerImpl, error) {
 	todoService := service.NewTodoService(tracing, mongoTodoRepository)
 	todoHTTPHandler := todo_http.NewTodoHTTPHandler(tracing, todoService)
 	httpServer := pkg_http_server.NewHTTPServer(logger, todoHTTPHandler)
-	serverImpl := server.NewServer(tracing, logger, amqp, todoAMQPConsumer, mongoDB, httpServer)
+	serverImpl := server.NewServer(tracing, logger, amqp, todoAMQPConsumer, todoAMQPPublisher, mongoDB, httpServer)
 	return serverImpl, nil
 }

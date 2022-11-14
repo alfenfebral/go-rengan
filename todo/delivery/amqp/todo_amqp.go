@@ -1,4 +1,4 @@
-package todo_amqp
+package todo_amqp_delivery
 
 import (
 	"context"
@@ -41,7 +41,7 @@ func (c *TodoAMQPConsumerImpl) Register() {
 
 // Create - create todo consumer
 func (c *TodoAMQPConsumerImpl) Create() {
-	messageName := "todo.create"
+	messageName := "send_email"
 
 	channel := c.channel.Get()
 	q, err := channel.QueueDeclare(messageName, true, false, false, false, nil)
@@ -72,7 +72,7 @@ func (c *TodoAMQPConsumerImpl) Create() {
 		}
 		_, span := tr.Start(ctx, "AMQP - consume - todo.create", opts...)
 
-		c.logger.Printf("Received a message: %s", d.Body)
+		c.logger.Printf("Send email to: %s", d.Body)
 
 		err := d.Ack(false)
 		if err != nil {
