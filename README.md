@@ -3,6 +3,7 @@
 Go codebase deep fry with oil
 ## Stack
 - Chi (net/http)
+- Wire (Dependency Injection)
 - MongoDB
 - Opentelemetry
 - Uptrace
