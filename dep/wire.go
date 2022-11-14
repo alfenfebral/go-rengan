@@ -11,6 +11,7 @@ import (
 	pkg_server "go-rengan/pkg/server"
 	pkg_http_server "go-rengan/pkg/server/http"
 	pkg_tracing "go-rengan/pkg/tracing"
+	todo_amqp "go-rengan/todo/delivery/amqp"
 	todo_http "go-rengan/todo/delivery/http"
 	repository "go-rengan/todo/repository"
 	service "go-rengan/todo/service"
@@ -28,6 +29,7 @@ func InitializeServer() (*pkg_server.ServerImpl, error) {
 		service.NewTodoService,
 		pkg_http_server.NewHTTPServer,
 		todo_http.NewTodoHTTPHandler,
+		todo_amqp.NewTodoAMQPConsumer,
 		pkg_server.NewServer,
 	)
 

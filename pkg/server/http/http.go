@@ -30,7 +30,10 @@ type HTTPServerImpl struct {
 	logger pkg_logger.Logger
 }
 
-func NewHTTPServer(logger pkg_logger.Logger, todoHandler todo_http.TodoHTTPHandler) HTTPServer {
+func NewHTTPServer(
+	logger pkg_logger.Logger,
+	todoHandler todo_http.TodoHTTPHandler,
+) HTTPServer {
 	router := chi.NewRouter()
 	router.Use(otelchi.Middleware(os.Getenv("APP_NAME"), otelchi.WithChiRoutes(router)))
 	router.Use(
@@ -45,7 +48,7 @@ func NewHTTPServer(logger pkg_logger.Logger, todoHandler todo_http.TodoHTTPHandl
 		render.JSON(w, r, response.H{
 			"success": "true",
 			"code":    200,
-			"message": "Services run properly",
+			"message": fmt.Sprintf("Services %s run properly", os.Getenv("APP_NAME")),
 		})
 	})
 

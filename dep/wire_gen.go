@@ -13,6 +13,7 @@ import (
 	"go-rengan/pkg/server"
 	"go-rengan/pkg/server/http"
 	"go-rengan/pkg/tracing"
+	"go-rengan/todo/delivery/amqp"
 	"go-rengan/todo/delivery/http"
 	"go-rengan/todo/repository"
 	"go-rengan/todo/service"
@@ -30,6 +31,7 @@ func InitializeServer() (*server.ServerImpl, error) {
 	if err != nil {
 		return nil, err
 	}
+	todoAMQPConsumer := todo_amqp.NewTodoAMQPConsumer(logger, tracing, amqp)
 	mongoDB, err := mongodb.NewMongoDB()
 	if err != nil {
 		return nil, err
@@ -38,6 +40,6 @@ func InitializeServer() (*server.ServerImpl, error) {
 	todoService := service.NewTodoService(tracing, mongoTodoRepository)
 	todoHTTPHandler := todo_http.NewTodoHTTPHandler(tracing, todoService)
 	httpServer := pkg_http_server.NewHTTPServer(logger, todoHTTPHandler)
-	serverImpl := server.NewServer(tracing, logger, amqp, mongoDB, httpServer)
+	serverImpl := server.NewServer(tracing, logger, amqp, todoAMQPConsumer, mongoDB, httpServer)
 	return serverImpl, nil
 }
