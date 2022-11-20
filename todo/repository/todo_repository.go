@@ -38,7 +38,7 @@ func NewMongoTodoRepository(mongoDB pkg_mongodb.MongoDB) MongoTodoRepository {
 }
 
 // FindAll - find all todo
-func (m *MongoTodoRepositoryImpl) FindAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, error) {
+func (mongoImpl *MongoTodoRepositoryImpl) FindAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, error) {
 	var results []*models.Todo
 
 	// Pass these options to the Find method
@@ -46,7 +46,7 @@ func (m *MongoTodoRepositoryImpl) FindAll(ctx context.Context, keyword string, l
 	findOptions.SetLimit(int64(limit))
 	findOptions.SetSkip(int64(offset))
 
-	client := m.mongoDB.Get()
+	client := mongoImpl.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 	cur, err := collection.Find(ctx, bson.M{"title": bson.M{"$regex": keyword, "$options": "i"}}, findOptions)
 	if err != nil {
@@ -78,8 +78,8 @@ func (m *MongoTodoRepositoryImpl) FindAll(ctx context.Context, keyword string, l
 }
 
 // CountFindAll - count find all todo
-func (m *MongoTodoRepositoryImpl) CountFindAll(ctx context.Context, keyword string) (int, error) {
-	client := m.mongoDB.Get()
+func (mongoImpl *MongoTodoRepositoryImpl) CountFindAll(ctx context.Context, keyword string) (int, error) {
+	client := mongoImpl.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
 	total, err := collection.CountDocuments(ctx, bson.M{"title": bson.M{"$regex": keyword, "$options": "i"}})
@@ -91,13 +91,13 @@ func (m *MongoTodoRepositoryImpl) CountFindAll(ctx context.Context, keyword stri
 }
 
 // FindById - find todo by id
-func (m *MongoTodoRepositoryImpl) FindById(ctx context.Context, id string) (*models.Todo, error) {
+func (mongoImpl *MongoTodoRepositoryImpl) FindById(ctx context.Context, id string) (*models.Todo, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
 
-	client := m.mongoDB.Get()
+	client := mongoImpl.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
 	result := &models.Todo{}
@@ -114,13 +114,13 @@ func (m *MongoTodoRepositoryImpl) FindById(ctx context.Context, id string) (*mod
 }
 
 // CountFindByID - find count todo by id
-func (m *MongoTodoRepositoryImpl) CountFindByID(ctx context.Context, id string) (int, error) {
+func (mongoImpl *MongoTodoRepositoryImpl) CountFindByID(ctx context.Context, id string) (int, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return 0, errors.New("not found")
 	}
 
-	client := m.mongoDB.Get()
+	client := mongoImpl.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 	total, err := collection.CountDocuments(ctx, bson.M{"_id": docID})
 	if err != nil {
@@ -135,8 +135,8 @@ func (m *MongoTodoRepositoryImpl) CountFindByID(ctx context.Context, id string) 
 }
 
 // Store - store todo
-func (m *MongoTodoRepositoryImpl) Store(ctx context.Context, value *models.Todo) (*models.Todo, error) {
-	client := m.mongoDB.Get()
+func (mongoImpl *MongoTodoRepositoryImpl) Store(ctx context.Context, value *models.Todo) (*models.Todo, error) {
+	client := mongoImpl.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
 	timeNow := utils.GetTimeNow()
@@ -162,13 +162,13 @@ func (m *MongoTodoRepositoryImpl) Store(ctx context.Context, value *models.Todo)
 }
 
 // Update - update todo by id
-func (m *MongoTodoRepositoryImpl) Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error) {
+func (mongoImpl *MongoTodoRepositoryImpl) Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
 
-	client := m.mongoDB.Get()
+	client := mongoImpl.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
 	timeNow := utils.GetTimeNow()
@@ -190,8 +190,8 @@ func (m *MongoTodoRepositoryImpl) Update(ctx context.Context, id string, value *
 }
 
 // Delete - delete todo by id
-func (m *MongoTodoRepositoryImpl) Delete(ctx context.Context, id string) error {
-	client := m.mongoDB.Get()
+func (mongoImpl *MongoTodoRepositoryImpl) Delete(ctx context.Context, id string) error {
+	client := mongoImpl.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
 	docID, err := primitive.ObjectIDFromHex(id)

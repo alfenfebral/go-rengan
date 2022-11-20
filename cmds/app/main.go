@@ -26,7 +26,7 @@ func main() {
 		logrus.Error(err)
 	}
 
-	defer server.Tp.ShutDown()
+	defer server.Tracing.ShutDown()
 	defer server.AMQP.Get().Close()
 	defer func() {
 		if err := server.MongoDB.Disconnect(); err != nil {

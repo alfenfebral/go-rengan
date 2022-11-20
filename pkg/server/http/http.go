@@ -66,29 +66,29 @@ func NewHTTPServer(
 }
 
 // PrintAllRoutes - Walk and print out all routes
-func (s *HTTPServerImpl) PrintAllRoutes() {
+func (httpServerImpl *HTTPServerImpl) PrintAllRoutes() {
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
 		logrus.Printf("%s %s\n", method, route)
 		return nil
 	}
-	router := s.GetRouter()
+	router := httpServerImpl.GetRouter()
 	if err := chi.Walk(router, walkFunc); err != nil {
-		s.logger.Error(err)
+		httpServerImpl.logger.Error(err)
 	}
 }
 
 // Run - running server
-func (s *HTTPServerImpl) Run() error {
+func (httpServerImpl *HTTPServerImpl) Run() error {
 	addr := fmt.Sprintf("%s%s", ":", os.Getenv("PORT"))
 	logrus.Infoln("HTTP server listening on", addr)
 
-	router := s.GetRouter()
-	s.svr = &http.Server{
+	router := httpServerImpl.GetRouter()
+	httpServerImpl.svr = &http.Server{
 		Addr:    addr,
 		Handler: router,
 	}
 
-	err := s.svr.ListenAndServe()
+	err := httpServerImpl.svr.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		return err
 	}
@@ -97,10 +97,10 @@ func (s *HTTPServerImpl) Run() error {
 }
 
 // GracefulStop the server
-func (s *HTTPServerImpl) GracefulStop(ctx context.Context) error {
-	return s.svr.Shutdown(ctx)
+func (httpServerImpl *HTTPServerImpl) GracefulStop(ctx context.Context) error {
+	return httpServerImpl.svr.Shutdown(ctx)
 }
 
-func (s *HTTPServerImpl) GetRouter() *chi.Mux {
-	return s.router
+func (httpServerImpl *HTTPServerImpl) GetRouter() *chi.Mux {
+	return httpServerImpl.router
 }

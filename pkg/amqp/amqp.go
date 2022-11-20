@@ -17,12 +17,12 @@ type AMQPImpl struct {
 func NewAMQP() (AMQP, error) {
 	connection, err := amqp.Dial(os.Getenv("AMQP_URL"))
 	if err != nil {
-		return &AMQPImpl{}, err
+		return nil, err
 	}
 
 	channel, err := connection.Channel()
 	if err != nil {
-		return &AMQPImpl{}, err
+		return nil, err
 	}
 
 	return &AMQPImpl{
@@ -30,6 +30,6 @@ func NewAMQP() (AMQP, error) {
 	}, err
 }
 
-func (a *AMQPImpl) Get() *amqp.Channel {
-	return a.channel
+func (amqpImpl *AMQPImpl) Get() *amqp.Channel {
+	return amqpImpl.channel
 }

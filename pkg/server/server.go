@@ -16,7 +16,7 @@ import (
 type ServerImpl struct {
 	httpServer        pkg_http_server.HTTPServer
 	logger            pkg_logger.Logger
-	Tp                pkg_tracing.Tracing
+	Tracing           pkg_tracing.Tracing
 	TodoAMQPConsumer  todo_amqp_delivery.TodoAMQPConsumer
 	TodoAMQPPublisher todo_amqp_service.TodoAMQPPublisher
 	MongoDB           pkg_mongodb.MongoDB
@@ -24,7 +24,7 @@ type ServerImpl struct {
 }
 
 func NewServer(
-	tp pkg_tracing.Tracing,
+	tracing pkg_tracing.Tracing,
 	logger pkg_logger.Logger,
 	amqp pkg_amqp.AMQP,
 	todoAMQPConsumer todo_amqp_delivery.TodoAMQPConsumer,
@@ -35,7 +35,7 @@ func NewServer(
 	return &ServerImpl{
 		httpServer:        httpServer,
 		logger:            logger,
-		Tp:                tp,
+		Tracing:           tracing,
 		AMQP:              amqp,
 		TodoAMQPConsumer:  todoAMQPConsumer,
 		TodoAMQPPublisher: todoAMQPPublisher,
@@ -44,15 +44,15 @@ func NewServer(
 }
 
 // Run server
-func (s *ServerImpl) Run() error {
+func (serverImpl *ServerImpl) Run() error {
 	go func() {
-		s.TodoAMQPConsumer.Register()
+		serverImpl.TodoAMQPConsumer.Register()
 	}()
 
 	go func() {
-		err := s.httpServer.Run()
+		err := serverImpl.httpServer.Run()
 		if err != nil {
-			s.logger.Error(err)
+			serverImpl.logger.Error(err)
 		}
 	}()
 
@@ -60,10 +60,10 @@ func (s *ServerImpl) Run() error {
 }
 
 // GracefulStop server
-func (s *ServerImpl) GracefulStop(ctx context.Context, done chan bool) {
-	err := s.httpServer.GracefulStop(ctx)
+func (serverImpl *ServerImpl) GracefulStop(ctx context.Context, done chan bool) {
+	err := serverImpl.httpServer.GracefulStop(ctx)
 	if err != nil {
-		s.logger.Error(err)
+		serverImpl.logger.Error(err)
 	}
 
 	logrus.Info("gracefully shutdowned")

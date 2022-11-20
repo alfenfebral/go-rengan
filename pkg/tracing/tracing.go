@@ -62,23 +62,23 @@ func NewTracing() (Tracing, error) {
 	}, nil
 }
 
-func (t *TracingImpl) GetTracerProvider() *trace_sdk.TracerProvider {
-	return t.tp
+func (tracingImpl *TracingImpl) GetTracerProvider() *trace_sdk.TracerProvider {
+	return tracingImpl.tp
 }
 
-func (t *TracingImpl) ShutDown() {
-	if err := t.tp.Shutdown(context.Background()); err != nil {
+func (tracingImpl *TracingImpl) ShutDown() {
+	if err := tracingImpl.tp.Shutdown(context.Background()); err != nil {
 		log.Printf("Error shutting down tracer provider: %v", err)
 	}
 }
 
-func (t *TracingImpl) LogError(span trace.Span, err error) {
+func (tracingImpl *TracingImpl) LogError(span trace.Span, err error) {
 	span.SetAttributes(
 		attribute.Key("error").Bool(true),
 	)
 	span.RecordError(err)
 }
 
-func (t *TracingImpl) Tracer(name string) trace.Tracer {
+func (tracingImpl *TracingImpl) Tracer(name string) trace.Tracer {
 	return otel.Tracer(name)
 }

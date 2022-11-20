@@ -34,7 +34,7 @@ func InitializeServer() (*server.ServerImpl, error) {
 	}
 	todoAMQPConsumer := todo_amqp_delivery.NewTodoAMQPConsumer(logger, tracing, amqp)
 	todoAMQPPublisher := todo_amqp_service.NewTodoAMQPPublisher(logger, tracing, amqp)
-	mongoDB, err := mongodb.NewMongoDB()
+	mongoDB, err := mongodb.NewMongoDB(logger)
 	if err != nil {
 		return nil, err
 	}

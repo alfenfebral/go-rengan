@@ -18,35 +18,35 @@ type TodoAMQPConsumer interface {
 // TodoAMQPConsumerImpl represent the amqp
 type TodoAMQPConsumerImpl struct {
 	logger  pkg_logger.Logger
-	tp      pkg_tracing.Tracing
+	tracing pkg_tracing.Tracing
 	channel pkg_amqp.AMQP
 }
 
 // NewTodoAMQPConsumer - make amqp consumer
 func NewTodoAMQPConsumer(
 	logger pkg_logger.Logger,
-	tp pkg_tracing.Tracing,
+	tracing pkg_tracing.Tracing,
 	channel pkg_amqp.AMQP,
 ) TodoAMQPConsumer {
 	return &TodoAMQPConsumerImpl{
 		logger:  logger,
-		tp:      tp,
+		tracing: tracing,
 		channel: channel,
 	}
 }
 
-func (c *TodoAMQPConsumerImpl) Register() {
-	c.Create()
+func (consumer *TodoAMQPConsumerImpl) Register() {
+	consumer.Create()
 }
 
 // Create - create todo consumer
-func (c *TodoAMQPConsumerImpl) Create() {
+func (consumer *TodoAMQPConsumerImpl) Create() {
 	messageName := "send_email"
 
-	channel := c.channel.Get()
+	channel := consumer.channel.Get()
 	q, err := channel.QueueDeclare(messageName, true, false, false, false, nil)
 	if err != nil {
-		c.logger.Error(err)
+		consumer.logger.Error(err)
 	}
 
 	msgs, err := channel.Consume(
@@ -59,24 +59,24 @@ func (c *TodoAMQPConsumerImpl) Create() {
 		nil,
 	)
 	if err != nil {
-		c.logger.Error(err)
+		consumer.logger.Error(err)
 	}
-	c.logger.Println("Consumer listen to queue name", messageName)
+	consumer.logger.Println("Consumer listen to queue name", messageName)
 
 	for d := range msgs {
 		ctx := pkg_amqp.ExtractAMQPHeaders(context.Background(), d.Headers)
 
-		tr := c.tp.Tracer("amqp")
+		tr := consumer.tracing.Tracer("amqp")
 		opts := []trace.SpanStartOption{
 			trace.WithSpanKind(trace.SpanKindConsumer),
 		}
 		_, span := tr.Start(ctx, "AMQP - consume - todo.create", opts...)
 
-		c.logger.Printf("Send email to: %s", d.Body)
+		consumer.logger.Printf("Send email to: %s", d.Body)
 
 		err := d.Ack(false)
 		if err != nil {
-			c.logger.Error(err)
+			consumer.logger.Error(err)
 		}
 
 		span.End()

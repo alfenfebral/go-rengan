@@ -5,7 +5,7 @@ import (
 )
 
 type Logger interface {
-	Error(err error)
+	Error(args ...interface{})
 	Println(args ...interface{})
 	Printf(format string, args ...interface{})
 }
@@ -16,8 +16,8 @@ func NewLogger() Logger {
 	return &LoggerImpl{}
 }
 
-func (logger *LoggerImpl) Error(err error) {
-	logrus.Error(err)
+func (logger *LoggerImpl) Error(args ...interface{}) {
+	logrus.Error(args...)
 }
 
 func (logger *LoggerImpl) Println(args ...interface{}) {

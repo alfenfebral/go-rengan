@@ -24,8 +24,8 @@ type TodoRequest struct {
 	Description string `form:"description" json:"description" validate:"required"`
 }
 
-func (tr *TodoRequest) Bind(r *http.Request) error {
-	return pkg_validator.ValidateStruct(tr)
+func (request *TodoRequest) Bind(r *http.Request) error {
+	return pkg_validator.ValidateStruct(request)
 }
 
 // TodoListRequest - form for list validation

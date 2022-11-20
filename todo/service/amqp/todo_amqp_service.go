@@ -18,30 +18,30 @@ type TodoAMQPPublisher interface {
 
 type todoAMQPPublisher struct {
 	logger  pkg_logger.Logger
-	tp      pkg_tracing.Tracing
+	tracing pkg_tracing.Tracing
 	channel pkg_amqp.AMQP
 }
 
 func NewTodoAMQPPublisher(
 	logger pkg_logger.Logger,
-	tp pkg_tracing.Tracing,
+	tracing pkg_tracing.Tracing,
 	channel pkg_amqp.AMQP,
 ) TodoAMQPPublisher {
 	return &todoAMQPPublisher{
 		logger:  logger,
-		tp:      tp,
+		tracing: tracing,
 		channel: channel,
 	}
 }
 
 // Create - publish amqp create
-func (p *todoAMQPPublisher) Create(value string) {
+func (publisherImpl *todoAMQPPublisher) Create(value string) {
 	ctx := context.Background()
 
 	messageName := "send_email"
 
 	// Create a new span (child of the trace id) to inform the publishing of the message
-	tr := p.tp.Tracer("amqp")
+	tr := publisherImpl.tracing.Tracer("amqp")
 	spanName := fmt.Sprintf("AMQP - publish - %s", messageName)
 
 	opts := []trace.SpanStartOption{
@@ -51,10 +51,10 @@ func (p *todoAMQPPublisher) Create(value string) {
 	ctx, span := tr.Start(ctx, spanName, opts...)
 	defer span.End()
 
-	channel := p.channel.Get()
+	channel := publisherImpl.channel.Get()
 	q, err := channel.QueueDeclare(messageName, true, false, false, false, nil)
 	if err != nil {
-		p.logger.Error(err)
+		publisherImpl.logger.Error(err)
 	}
 
 	// Inject the context in the headers
@@ -68,7 +68,7 @@ func (p *todoAMQPPublisher) Create(value string) {
 
 	err = channel.Publish("", q.Name, false, false, msg)
 	if err != nil {
-		p.logger.Error(err)
+		publisherImpl.logger.Error(err)
 	}
-	p.logger.Println("Publisher send to queue name", messageName)
+	publisherImpl.logger.Println("Publisher send to queue name", messageName)
 }
