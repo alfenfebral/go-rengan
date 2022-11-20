@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	pkg_tracing "go-rengan/pkg/tracing"
+	mock_publisher "go-rengan/todo/mocks/publisher"
 	mockRepositories "go-rengan/todo/mocks/repository"
 	"go-rengan/todo/models"
 	"go-rengan/todo/service"
@@ -33,7 +34,9 @@ func TestTodoGetAll(t *testing.T) {
 		mockRepository.On("FindAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(mockList, nil)
 		mockRepository.On("CountFindAll", mock.Anything, mock.AnythingOfType("string")).Return(10, nil)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		results, count, err := service.GetAll(context.Background(), "keyword", 10, 0)
 
@@ -50,7 +53,9 @@ func TestTodoGetAll(t *testing.T) {
 		mockRepository.On("FindAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, ErrDefault)
 		mockRepository.On("CountFindAll", mock.Anything, mock.AnythingOfType("string")).Return(10, nil)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		results, count, err := service.GetAll(context.Background(), "keyword", 10, 0)
 
@@ -67,7 +72,9 @@ func TestTodoGetAll(t *testing.T) {
 		mockRepository.On("FindAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, nil)
 		mockRepository.On("CountFindAll", mock.Anything, mock.AnythingOfType("string")).Return(10, ErrDefault)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		results, count, err := service.GetAll(context.Background(), "keyword", 10, 0)
 
@@ -91,7 +98,9 @@ func TestTodoGetByID(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		mockRepository.On("FindById", mock.Anything, mock.AnythingOfType("string")).Return(mockTodo, nil)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		result, err := service.GetByID(context.Background(), DefaultID)
 
@@ -106,7 +115,9 @@ func TestTodoGetByID(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		mockRepository.On("FindById", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrDefault)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		result, err := service.GetByID(context.Background(), DefaultID)
 
@@ -129,7 +140,9 @@ func TestTodoCreate(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		mockRepository.On("Store", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(mockTodo, nil)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		result, err := service.Create(context.Background(), &models.Todo{})
 
@@ -144,7 +157,9 @@ func TestTodoCreate(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		mockRepository.On("Store", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		result, err := service.Create(context.Background(), &models.Todo{})
 
@@ -168,7 +183,9 @@ func TestTodoUpdate(t *testing.T) {
 		mockRepository.On("CountFindByID", mock.Anything, mock.AnythingOfType("string")).Return(10, nil)
 		mockRepository.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(mockTodo, nil)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		result, err := service.Update(context.Background(), DefaultID, &models.Todo{})
 
@@ -184,7 +201,9 @@ func TestTodoUpdate(t *testing.T) {
 		mockRepository.On("CountFindByID", mock.Anything, mock.AnythingOfType("string")).Return(0, ErrDefault)
 		mockRepository.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, nil)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		result, err := service.Update(context.Background(), DefaultID, &models.Todo{})
 
@@ -200,7 +219,9 @@ func TestTodoUpdate(t *testing.T) {
 		mockRepository.On("CountFindByID", mock.Anything, mock.AnythingOfType("string")).Return(10, nil)
 		mockRepository.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		result, err := service.Update(context.Background(), DefaultID, &models.Todo{})
 
@@ -221,7 +242,9 @@ func TestTodoDelete(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		mockRepository.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(nil)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		err = service.Delete(context.Background(), DefaultID)
 
@@ -235,7 +258,9 @@ func TestTodoDelete(t *testing.T) {
 		mockRepository := new(mockRepositories.MongoTodoRepository)
 		mockRepository.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrDefault)
 
-		service := service.NewTodoService(tracing, mockRepository)
+		mockPublisher := new(mock_publisher.TodoAMQPPublisher)
+
+		service := service.NewTodoService(tracing, mockRepository, mockPublisher)
 
 		err = service.Delete(context.Background(), DefaultID)
 

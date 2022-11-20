@@ -8,19 +8,17 @@ import (
 	pkg_http_server "go-rengan/pkg/server/http"
 	pkg_tracing "go-rengan/pkg/tracing"
 	todo_amqp_delivery "go-rengan/todo/delivery/amqp"
-	todo_amqp_service "go-rengan/todo/service/amqp"
 
 	"github.com/sirupsen/logrus"
 )
 
 type ServerImpl struct {
-	httpServer        pkg_http_server.HTTPServer
-	logger            pkg_logger.Logger
-	Tracing           pkg_tracing.Tracing
-	TodoAMQPConsumer  todo_amqp_delivery.TodoAMQPConsumer
-	TodoAMQPPublisher todo_amqp_service.TodoAMQPPublisher
-	MongoDB           pkg_mongodb.MongoDB
-	AMQP              pkg_amqp.AMQP
+	httpServer       pkg_http_server.HTTPServer
+	logger           pkg_logger.Logger
+	Tracing          pkg_tracing.Tracing
+	TodoAMQPConsumer todo_amqp_delivery.TodoAMQPConsumer
+	MongoDB          pkg_mongodb.MongoDB
+	AMQP             pkg_amqp.AMQP
 }
 
 func NewServer(
@@ -28,18 +26,16 @@ func NewServer(
 	logger pkg_logger.Logger,
 	amqp pkg_amqp.AMQP,
 	todoAMQPConsumer todo_amqp_delivery.TodoAMQPConsumer,
-	todoAMQPPublisher todo_amqp_service.TodoAMQPPublisher,
 	mongoDB pkg_mongodb.MongoDB,
 	httpServer pkg_http_server.HTTPServer,
 ) *ServerImpl {
 	return &ServerImpl{
-		httpServer:        httpServer,
-		logger:            logger,
-		Tracing:           tracing,
-		AMQP:              amqp,
-		TodoAMQPConsumer:  todoAMQPConsumer,
-		TodoAMQPPublisher: todoAMQPPublisher,
-		MongoDB:           mongoDB,
+		httpServer:       httpServer,
+		logger:           logger,
+		Tracing:          tracing,
+		AMQP:             amqp,
+		TodoAMQPConsumer: todoAMQPConsumer,
+		MongoDB:          mongoDB,
 	}
 }
 

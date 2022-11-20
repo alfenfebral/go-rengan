@@ -13,9 +13,9 @@ import (
 	pkg_tracing "go-rengan/pkg/tracing"
 	todo_amqp_delivery "go-rengan/todo/delivery/amqp"
 	todo_http "go-rengan/todo/delivery/http"
+	todo_amqp_service "go-rengan/todo/publisher"
 	repository "go-rengan/todo/repository"
 	service "go-rengan/todo/service"
-	todo_amqp_service "go-rengan/todo/service/amqp"
 
 	"github.com/google/wire"
 )

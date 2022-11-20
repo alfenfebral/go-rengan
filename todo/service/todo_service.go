@@ -4,8 +4,8 @@ import (
 	"context"
 	pkg_tracing "go-rengan/pkg/tracing"
 	"go-rengan/todo/models"
+	todo_amqp_service "go-rengan/todo/publisher"
 	"go-rengan/todo/repository"
-	todo_amqp_service "go-rengan/todo/service/amqp"
 )
 
 // TodoService represent the todo service

@@ -16,7 +16,7 @@ type TodoAMQPPublisher interface {
 	Create(value string)
 }
 
-type todoAMQPPublisher struct {
+type TodoAMQPPublisherImpl struct {
 	logger  pkg_logger.Logger
 	tracing pkg_tracing.Tracing
 	channel pkg_amqp.AMQP
@@ -27,7 +27,7 @@ func NewTodoAMQPPublisher(
 	tracing pkg_tracing.Tracing,
 	channel pkg_amqp.AMQP,
 ) TodoAMQPPublisher {
-	return &todoAMQPPublisher{
+	return &TodoAMQPPublisherImpl{
 		logger:  logger,
 		tracing: tracing,
 		channel: channel,
@@ -35,7 +35,7 @@ func NewTodoAMQPPublisher(
 }
 
 // Create - publish amqp create
-func (publisherImpl *todoAMQPPublisher) Create(value string) {
+func (publisherImpl *TodoAMQPPublisherImpl) Create(value string) {
 	ctx := context.Background()
 
 	messageName := "send_email"
