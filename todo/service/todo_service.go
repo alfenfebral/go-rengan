@@ -5,6 +5,7 @@ import (
 	pkg_tracing "go-rengan/pkg/tracing"
 	"go-rengan/todo/models"
 	"go-rengan/todo/repository"
+	todo_amqp_service "go-rengan/todo/service/amqp"
 )
 
 // TodoService represent the todo service
@@ -17,15 +18,21 @@ type TodoService interface {
 }
 
 type TodoServiceImpl struct {
-	tp       pkg_tracing.Tracing
-	todoRepo repository.MongoTodoRepository
+	tp              pkg_tracing.Tracing
+	todoRepo        repository.MongoTodoRepository
+	todoAMQPService todo_amqp_service.TodoAMQPPublisher
 }
 
 // NewTodoService will create new an TodoService object representation of TodoService interface
-func NewTodoService(tp pkg_tracing.Tracing, a repository.MongoTodoRepository) TodoService {
+func NewTodoService(
+	tp pkg_tracing.Tracing,
+	todoRepo repository.MongoTodoRepository,
+	todoAMQPService todo_amqp_service.TodoAMQPPublisher,
+) TodoService {
 	return &TodoServiceImpl{
-		tp:       tp,
-		todoRepo: a,
+		tp:              tp,
+		todoRepo:        todoRepo,
+		todoAMQPService: todoAMQPService,
 	}
 }
 
@@ -73,6 +80,9 @@ func (a *TodoServiceImpl) Create(ctx context.Context, value *models.Todo) (*mode
 	if err != nil {
 		return nil, err
 	}
+
+	// Send Email Queue
+	a.todoAMQPService.Create("example.com")
 
 	return res, nil
 }

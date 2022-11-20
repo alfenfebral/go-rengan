@@ -46,10 +46,6 @@ func NewServer(
 // Run server
 func (s *ServerImpl) Run() error {
 	go func() {
-		s.TodoAMQPPublisher.Create()
-	}()
-
-	go func() {
 		s.TodoAMQPConsumer.Register()
 	}()
 

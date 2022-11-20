@@ -13,7 +13,7 @@ import (
 )
 
 type TodoAMQPPublisher interface {
-	Create()
+	Create(value string)
 }
 
 type todoAMQPPublisher struct {
@@ -35,7 +35,7 @@ func NewTodoAMQPPublisher(
 }
 
 // Create - publish amqp create
-func (p *todoAMQPPublisher) Create() {
+func (p *todoAMQPPublisher) Create(value string) {
 	ctx := context.Background()
 
 	messageName := "send_email"
@@ -59,7 +59,7 @@ func (p *todoAMQPPublisher) Create() {
 
 	// Inject the context in the headers
 	headers := pkg_amqp.InjectAMQPHeaders(ctx)
-	body := "example.com"
+	body := value
 	msg := amqp.Publishing{
 		Headers:     headers,
 		ContentType: "text/plain",
