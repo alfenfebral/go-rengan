@@ -3,13 +3,13 @@ package todo_amqp_service
 import (
 	"context"
 	"fmt"
+
+	pkg_amqp "go-rengan/pkg/amqp"
 	pkg_logger "go-rengan/pkg/logger"
 	pkg_tracing "go-rengan/pkg/tracing"
 
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel/trace"
-
-	pkg_amqp "go-rengan/pkg/amqp"
 )
 
 type TodoAMQPPublisher interface {
