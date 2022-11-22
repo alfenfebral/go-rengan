@@ -2,31 +2,27 @@ package pagination
 
 import (
 	"math"
-	"strconv"
 )
 
-// PerPage - get per_page based on query string, the default value is 10
-func PerPage(value string) int {
-	if value == "" {
+// PerPage - get per_page, the default value is 10
+func PerPage(value int) int {
+	if value <= 0 {
 		return 10
 	}
 
-	perPage, _ := strconv.Atoi(value)
-
-	return perPage
+	return value
 }
 
-// CurrentPage - get current pages
-func CurrentPage(value string) int {
-	if value == "" {
+// CurrentPage - get current pages, the default value is 1
+func CurrentPage(value int) int {
+	if value < 1 {
 		return 1
 	}
-	perPage, _ := strconv.Atoi(value)
 
-	return perPage
+	return value
 }
 
-// TotalPage - get total pages
+// TotalPage - get total pages, based on ceil total/per page
 func TotalPage(total int, perPage int) int {
 	totalFloat := float64(total)
 	perPageFloat := float64(perPage)
