@@ -1,4 +1,4 @@
-package utils
+package reponse
 
 import (
 	validator "go-rengan/pkg/validator"

@@ -12,7 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"go-rengan/todo/models"
-	"go-rengan/utils"
+	timeutil "go-rengan/utils/time"
 )
 
 // Repository represent the todo repository contract
@@ -139,7 +139,7 @@ func (r *RepositoryImpl) Store(ctx context.Context, value *models.Todo) (*models
 	client := r.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
-	timeNow := utils.GetTimeNow()
+	timeNow := timeutil.GetTimeNow()
 	res, err := collection.InsertOne(ctx, bson.M{
 		"title":       value.Title,
 		"description": value.Description,
@@ -171,7 +171,7 @@ func (r *RepositoryImpl) Update(ctx context.Context, id string, value *models.To
 	client := r.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
-	timeNow := utils.GetTimeNow()
+	timeNow := timeutil.GetTimeNow()
 	bsonValue := bson.D{
 		{Key: "title", Value: value.Title},
 		{Key: "description", Value: value.Description},

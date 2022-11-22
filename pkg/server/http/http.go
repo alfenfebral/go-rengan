@@ -7,8 +7,8 @@ import (
 	"os"
 
 	logger "go-rengan/pkg/logger"
-	todo_http "go-rengan/todo/delivery/http"
-	response "go-rengan/utils/response"
+	todohttp "go-rengan/todo/delivery/http"
+	responseutil "go-rengan/utils/response"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -32,7 +32,7 @@ type HTTPServerImpl struct {
 
 func New(
 	logger logger.Logger,
-	todoHandler todo_http.HTTPHandler,
+	todoHandler todohttp.HTTPHandler,
 ) HTTPServer {
 	router := chi.NewRouter()
 	router.Use(otelchi.Middleware(os.Getenv("APP_NAME"), otelchi.WithChiRoutes(router)))
@@ -45,7 +45,7 @@ func New(
 	)
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, r, response.H{
+		render.JSON(w, r, responseutil.H{
 			"success": "true",
 			"code":    200,
 			"message": fmt.Sprintf("Services %s run properly", os.Getenv("APP_NAME")),
