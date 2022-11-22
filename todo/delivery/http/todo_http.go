@@ -7,6 +7,7 @@ import (
 	validator "go-rengan/pkg/validator"
 	"go-rengan/todo/models"
 	"go-rengan/todo/service"
+	errorsutil "go-rengan/utils/errors"
 	paginationutil "go-rengan/utils/pagination"
 	responseutil "go-rengan/utils/response"
 
@@ -104,7 +105,7 @@ func (h *HTTPHandlerImpl) GetByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.tracing.LogError(span, err)
 
-		if err.Error() == "not found" {
+		if err.Error() == errorsutil.ErrNotFound.Error() {
 			responseutil.ResponseNotFound(w, r, "Item not found")
 			return
 		}
@@ -128,7 +129,7 @@ func (h *HTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 	if err := render.Bind(r, data); err != nil {
 		h.tracing.LogError(span, err)
 
-		if err.Error() == "EOF" {
+		if err.Error() == errorsutil.ErrEOF.Error() {
 			responseutil.ResponseBodyError(w, r, err)
 			return
 		}
@@ -165,7 +166,7 @@ func (h *HTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Request) {
 	if err := render.Bind(r, data); err != nil {
 		h.tracing.LogError(span, err)
 
-		if err.Error() == "EOF" {
+		if err.Error() == errorsutil.ErrEOF.Error() {
 			responseutil.ResponseBodyError(w, r, err)
 			return
 		}
@@ -183,7 +184,7 @@ func (h *HTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.tracing.LogError(span, err)
 
-		if err.Error() == "not found" {
+		if err.Error() == errorsutil.ErrNotFound.Error() {
 			responseutil.ResponseNotFound(w, r, "Item not found")
 			return
 		}
@@ -212,7 +213,7 @@ func (h *HTTPHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.tracing.LogError(span, err)
 
-		if err.Error() == "not found" {
+		if err.Error() == errorsutil.ErrNotFound.Error() {
 			responseutil.ResponseNotFound(w, r, "Item not found")
 			return
 		}

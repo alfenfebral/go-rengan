@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"os"
 
 	mongodb "go-rengan/pkg/mongodb"
@@ -12,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"go-rengan/todo/models"
+	errorsutil "go-rengan/utils/errors"
 	timeutil "go-rengan/utils/time"
 )
 
@@ -94,7 +94,7 @@ func (r *RepositoryImpl) CountFindAll(ctx context.Context, keyword string) (int,
 func (r *RepositoryImpl) FindById(ctx context.Context, id string) (*models.Todo, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, errors.New("not found")
+		return nil, errorsutil.ErrNotFound
 	}
 
 	client := r.mongoDB.Get()
@@ -103,8 +103,8 @@ func (r *RepositoryImpl) FindById(ctx context.Context, id string) (*models.Todo,
 	result := &models.Todo{}
 	err = collection.FindOne(ctx, bson.M{"_id": docID}).Decode(&result)
 	if err != nil {
-		if err.Error() == "mongo: no documents in result" {
-			return result, errors.New("not found")
+		if err.Error() == errorsutil.ErrNoMongoDoc.Error() {
+			return result, errorsutil.ErrNotFound
 		}
 
 		return result, err
@@ -117,7 +117,7 @@ func (r *RepositoryImpl) FindById(ctx context.Context, id string) (*models.Todo,
 func (r *RepositoryImpl) CountFindByID(ctx context.Context, id string) (int, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return 0, errors.New("not found")
+		return 0, errorsutil.ErrNotFound
 	}
 
 	client := r.mongoDB.Get()
@@ -128,7 +128,7 @@ func (r *RepositoryImpl) CountFindByID(ctx context.Context, id string) (int, err
 	}
 
 	if total <= 0 {
-		return 0, errors.New("not found")
+		return 0, errorsutil.ErrNotFound
 	}
 
 	return int(total), nil
@@ -165,7 +165,7 @@ func (r *RepositoryImpl) Store(ctx context.Context, value *models.Todo) (*models
 func (r *RepositoryImpl) Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, errors.New("not found")
+		return nil, errorsutil.ErrNotFound
 	}
 
 	client := r.mongoDB.Get()
@@ -196,7 +196,7 @@ func (r *RepositoryImpl) Delete(ctx context.Context, id string) error {
 
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return errors.New("not found")
+		return errorsutil.ErrNotFound
 	}
 
 	result, err := collection.DeleteOne(ctx, bson.M{"_id": docID})
@@ -205,7 +205,7 @@ func (r *RepositoryImpl) Delete(ctx context.Context, id string) error {
 	}
 
 	if result.DeletedCount <= 0 {
-		return errors.New("not found")
+		return errorsutil.ErrNotFound
 	}
 
 	return nil

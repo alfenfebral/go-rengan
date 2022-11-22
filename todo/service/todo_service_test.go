@@ -2,12 +2,12 @@ package service_test
 
 import (
 	"context"
-	"errors"
 	tracing "go-rengan/pkg/tracing"
 	mockpublisher "go-rengan/todo/mocks/publisher"
 	mockrepository "go-rengan/todo/mocks/repository"
 	"go-rengan/todo/models"
 	"go-rengan/todo/service"
+	errorsutil "go-rengan/utils/errors"
 	"os"
 	"testing"
 
@@ -15,7 +15,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var ErrDefault error = errors.New("error")
 var DefaultID string = "1"
 
 func TestGetAll(t *testing.T) {
@@ -50,7 +49,7 @@ func TestGetAll(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockRepository := new(mockrepository.Repository)
-		mockRepository.On("FindAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, ErrDefault)
+		mockRepository.On("FindAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, errorsutil.ErrDefault)
 		mockRepository.On("CountFindAll", mock.Anything, mock.AnythingOfType("string")).Return(10, nil)
 
 		mockPublisher := new(mockpublisher.AMQPPublisher)
@@ -70,7 +69,7 @@ func TestGetAll(t *testing.T) {
 
 		mockRepository := new(mockrepository.Repository)
 		mockRepository.On("FindAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, nil)
-		mockRepository.On("CountFindAll", mock.Anything, mock.AnythingOfType("string")).Return(10, ErrDefault)
+		mockRepository.On("CountFindAll", mock.Anything, mock.AnythingOfType("string")).Return(10, errorsutil.ErrDefault)
 
 		mockPublisher := new(mockpublisher.AMQPPublisher)
 
@@ -113,7 +112,7 @@ func TestGetByID(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockRepository := new(mockrepository.Repository)
-		mockRepository.On("FindById", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrDefault)
+		mockRepository.On("FindById", mock.Anything, mock.AnythingOfType("string")).Return(nil, errorsutil.ErrDefault)
 
 		mockPublisher := new(mockpublisher.AMQPPublisher)
 
@@ -156,7 +155,7 @@ func TestCreate(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockRepository := new(mockrepository.Repository)
-		mockRepository.On("Store", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
+		mockRepository.On("Store", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(nil, errorsutil.ErrDefault)
 
 		mockPublisher := new(mockpublisher.AMQPPublisher)
 
@@ -199,7 +198,7 @@ func TestUpdate(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockRepository := new(mockrepository.Repository)
-		mockRepository.On("CountFindByID", mock.Anything, mock.AnythingOfType("string")).Return(0, ErrDefault)
+		mockRepository.On("CountFindByID", mock.Anything, mock.AnythingOfType("string")).Return(0, errorsutil.ErrDefault)
 		mockRepository.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, nil)
 
 		mockPublisher := new(mockpublisher.AMQPPublisher)
@@ -218,7 +217,7 @@ func TestUpdate(t *testing.T) {
 
 		mockRepository := new(mockrepository.Repository)
 		mockRepository.On("CountFindByID", mock.Anything, mock.AnythingOfType("string")).Return(10, nil)
-		mockRepository.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
+		mockRepository.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, errorsutil.ErrDefault)
 
 		mockPublisher := new(mockpublisher.AMQPPublisher)
 
@@ -257,7 +256,7 @@ func TestTodoDelete(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockRepository := new(mockrepository.Repository)
-		mockRepository.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrDefault)
+		mockRepository.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(errorsutil.ErrDefault)
 
 		mockPublisher := new(mockpublisher.AMQPPublisher)
 

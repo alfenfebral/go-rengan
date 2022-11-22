@@ -12,6 +12,7 @@ func PerPage(value string) int {
 	}
 
 	perPage, _ := strconv.Atoi(value)
+
 	return perPage
 }
 
@@ -27,7 +28,12 @@ func CurrentPage(value string) int {
 
 // TotalPage - get total pages
 func TotalPage(total int, perPage int) int {
-	return int(math.Ceil(float64(total) / float64(perPage)))
+	totalFloat := float64(total)
+	perPageFloat := float64(perPage)
+	resultFloat := math.Ceil(totalFloat / perPageFloat)
+	result := int(resultFloat)
+
+	return result
 }
 
 // Offset - offset of pages
@@ -36,5 +42,6 @@ func Offset(currentPage int, perPage int) int {
 	if result < 0 {
 		return 0
 	}
+
 	return result
 }

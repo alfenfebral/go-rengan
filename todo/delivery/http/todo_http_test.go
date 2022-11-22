@@ -3,13 +3,13 @@ package httpdelivery_test
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
 	validator "go-rengan/pkg/validator"
+	errorsutil "go-rengan/utils/errors"
 
 	tracing "go-rengan/pkg/tracing"
 	httpdelivery "go-rengan/todo/delivery/http"
@@ -22,8 +22,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-var ErrDefault error = errors.New("error")
-var ErrNotFound error = errors.New("not found")
 var WhenError400EOF string = "when return 400 bad request (error EOF)"
 var WhenError500Service string = "when return 500 internal error (error service)"
 var WhenError500Query string = "when return 500 internal error (error query)"
@@ -93,7 +91,7 @@ func TestTodoGetAll(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockservice := new(mockservice.Service)
-		mockservice.On("GetAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, 1, ErrDefault)
+		mockservice.On("GetAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, 1, errorsutil.ErrDefault)
 
 		todoHandler := httpdelivery.New(tracing, mockservice)
 
@@ -215,7 +213,7 @@ func TestTodoCreate(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockservice := new(mockservice.Service)
-		mockservice.On("Create", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(nil, errors.New(""))
+		mockservice.On("Create", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(nil, errorsutil.ErrDefault)
 
 		todoHandler := httpdelivery.New(tracing, mockservice)
 
@@ -282,7 +280,7 @@ func TestTodoGetByID(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockservice := new(mockservice.Service)
-		mockservice.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrNotFound)
+		mockservice.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(nil, errorsutil.ErrNotFound)
 
 		todoHandler := httpdelivery.New(tracing, mockservice)
 
@@ -308,7 +306,7 @@ func TestTodoGetByID(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockservice := new(mockservice.Service)
-		mockservice.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrDefault)
+		mockservice.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(nil, errorsutil.ErrDefault)
 
 		todoHandler := httpdelivery.New(tracing, mockservice)
 
@@ -428,7 +426,7 @@ func TestTodoUpdate(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockservice := new(mockservice.Service)
-		mockservice.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrNotFound)
+		mockservice.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, errorsutil.ErrNotFound)
 
 		todoHandler := httpdelivery.New(tracing, mockservice)
 
@@ -460,7 +458,7 @@ func TestTodoUpdate(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockservice := new(mockservice.Service)
-		mockservice.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
+		mockservice.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, errorsutil.ErrDefault)
 
 		todoHandler := httpdelivery.New(tracing, mockservice)
 
@@ -526,7 +524,7 @@ func TestTodoDelete(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockservice := new(mockservice.Service)
-		mockservice.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrNotFound)
+		mockservice.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(errorsutil.ErrNotFound)
 
 		todoHandler := httpdelivery.New(tracing, mockservice)
 
@@ -548,7 +546,7 @@ func TestTodoDelete(t *testing.T) {
 		assert.NoError(t, err)
 
 		mockservice := new(mockservice.Service)
-		mockservice.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrDefault)
+		mockservice.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(errorsutil.ErrDefault)
 
 		todoHandler := httpdelivery.New(tracing, mockservice)
 
