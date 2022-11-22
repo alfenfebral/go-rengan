@@ -1,4 +1,4 @@
-package reponse
+package response
 
 import (
 	validator "go-rengan/pkg/validator"
@@ -11,7 +11,7 @@ import (
 // H is a shortcut for map[string]interface{}
 type H map[string]interface{}
 
-type ResponseSuccessList struct {
+type SuccessList struct {
 	Data interface{} `json:"data"`
 	Meta *Meta       `json:"meta"`
 }
@@ -23,11 +23,12 @@ type Meta struct {
 	TotalData   int `json:"total_count"`
 }
 
-type ResponseSuccess struct {
+type Success struct {
 	Data interface{} `json:"data"`
 }
 
-func ResponseErrorValidation(w http.ResponseWriter, r *http.Request, err error) {
+// ErrorValidation - when error validation
+func ErrorValidation(w http.ResponseWriter, r *http.Request, err error) {
 	render.Status(r, http.StatusBadRequest)
 	render.JSON(w, r, H{
 		"success": false,
@@ -37,7 +38,8 @@ func ResponseErrorValidation(w http.ResponseWriter, r *http.Request, err error) 
 	})
 }
 
-func ResponseBodyError(w http.ResponseWriter, r *http.Request, err error) {
+// ErrorBody - when error body eof
+func ErrorBody(w http.ResponseWriter, r *http.Request, err error) {
 	render.Status(r, http.StatusBadRequest)
 	render.JSON(w, r, H{
 		"success": false,
@@ -47,8 +49,8 @@ func ResponseBodyError(w http.ResponseWriter, r *http.Request, err error) {
 	})
 }
 
-// ResponseError - send response error (500)
-func ResponseError(w http.ResponseWriter, r *http.Request, err error) {
+// ErrorInternal - when error internal server
+func ErrorInternal(w http.ResponseWriter, r *http.Request, err error) {
 	logrus.Error(err)
 
 	render.Status(r, http.StatusInternalServerError)
@@ -59,8 +61,8 @@ func ResponseError(w http.ResponseWriter, r *http.Request, err error) {
 	})
 }
 
-// ResponseNotFound - send response not found (404)
-func ResponseNotFound(w http.ResponseWriter, r *http.Request, message string) {
+// NotFound - when request not found
+func NotFound(w http.ResponseWriter, r *http.Request, message string) {
 	render.Status(r, http.StatusNotFound)
 	render.JSON(w, r, H{
 		"success": false,
@@ -69,7 +71,8 @@ func ResponseNotFound(w http.ResponseWriter, r *http.Request, message string) {
 	})
 }
 
-func ResponseCreated(w http.ResponseWriter, r *http.Request, data *ResponseSuccess) {
+// Created - when success created
+func Created(w http.ResponseWriter, r *http.Request, data *Success) {
 	render.Status(r, http.StatusCreated)
 
 	render.JSON(w, r, H{
@@ -79,7 +82,8 @@ func ResponseCreated(w http.ResponseWriter, r *http.Request, data *ResponseSucce
 	})
 }
 
-func ResponseOK(w http.ResponseWriter, r *http.Request, data *ResponseSuccess) {
+// ResponseOK - when success and return single data
+func ResponseOK(w http.ResponseWriter, r *http.Request, data *Success) {
 	render.Status(r, http.StatusOK)
 
 	render.JSON(w, r, H{
@@ -89,7 +93,8 @@ func ResponseOK(w http.ResponseWriter, r *http.Request, data *ResponseSuccess) {
 	})
 }
 
-func ResponseOKList(w http.ResponseWriter, r *http.Request, data *ResponseSuccessList) {
+// ResponseOKList - when success and return array of data
+func ResponseOKList(w http.ResponseWriter, r *http.Request, data *SuccessList) {
 	render.Status(r, http.StatusOK)
 
 	render.JSON(w, r, H{
@@ -97,16 +102,5 @@ func ResponseOKList(w http.ResponseWriter, r *http.Request, data *ResponseSucces
 		"code":    http.StatusOK,
 		"data":    data.Data,
 		"meta":    data.Meta,
-	})
-}
-
-func ResponseInternalServerError(w http.ResponseWriter, r *http.Request, err error) {
-	render.Status(r, http.StatusOK)
-
-	logrus.Error(err)
-	render.JSON(w, r, H{
-		"success": false,
-		"code":    http.StatusInternalServerError,
-		"message": "Internal server error",
 	})
 }

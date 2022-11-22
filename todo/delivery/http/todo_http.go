@@ -2,6 +2,7 @@ package httpdelivery
 
 import (
 	"net/http"
+	"strconv"
 
 	tracing "go-rengan/pkg/tracing"
 	validator "go-rengan/pkg/validator"
@@ -51,20 +52,32 @@ func (h *HTTPHandlerImpl) GetAll(w http.ResponseWriter, r *http.Request) {
 	defer span.End()
 
 	qQuery := r.URL.Query().Get("q")
-	pageQuery := r.URL.Query().Get("page")
-	perPageQuery := r.URL.Query().Get("per_page")
+	pageQueryStr := r.URL.Query().Get("page")
+	perPageQueryStr := r.URL.Query().Get("per_page")
 
 	err := validator.ValidateStruct(&models.TodoListRequest{
 		Keywords: &models.SearchForm{
 			Keywords: qQuery,
 		},
-		Page:    pageQuery,
-		PerPage: perPageQuery,
+		Page:    pageQueryStr,
+		PerPage: perPageQueryStr,
 	})
 	if err != nil {
 		h.tracing.LogError(span, err)
 
-		responseutil.ResponseErrorValidation(w, r, err)
+		responseutil.ErrorValidation(w, r, err)
+		return
+	}
+
+	pageQuery, err := strconv.Atoi(pageQueryStr)
+	if err != nil {
+		responseutil.ErrorInternal(w, r, err)
+		return
+	}
+
+	perPageQuery, err := strconv.Atoi(perPageQueryStr)
+	if err != nil {
+		responseutil.ErrorInternal(w, r, err)
 		return
 	}
 
@@ -76,12 +89,12 @@ func (h *HTTPHandlerImpl) GetAll(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.tracing.LogError(span, err)
 
-		responseutil.ResponseError(w, r, err)
+		responseutil.ErrorInternal(w, r, err)
 		return
 	}
 	totalPages := paginationutil.TotalPage(totalData, perPage)
 
-	responseutil.ResponseOKList(w, r, &responseutil.ResponseSuccessList{
+	responseutil.ResponseOKList(w, r, &responseutil.SuccessList{
 		Data: results,
 		Meta: &responseutil.Meta{
 			PerPage:     perPage,
@@ -106,15 +119,15 @@ func (h *HTTPHandlerImpl) GetByID(w http.ResponseWriter, r *http.Request) {
 		h.tracing.LogError(span, err)
 
 		if err.Error() == errorsutil.ErrNotFound.Error() {
-			responseutil.ResponseNotFound(w, r, "Item not found")
+			responseutil.NotFound(w, r, "Item not found")
 			return
 		}
 
-		responseutil.ResponseError(w, r, err)
+		responseutil.ErrorInternal(w, r, err)
 		return
 	}
 
-	responseutil.ResponseOK(w, r, &responseutil.ResponseSuccess{
+	responseutil.ResponseOK(w, r, &responseutil.Success{
 		Data: result,
 	})
 
@@ -130,11 +143,11 @@ func (h *HTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 		h.tracing.LogError(span, err)
 
 		if err.Error() == errorsutil.ErrEOF.Error() {
-			responseutil.ResponseBodyError(w, r, err)
+			responseutil.ErrorBody(w, r, err)
 			return
 		}
 
-		responseutil.ResponseErrorValidation(w, r, err)
+		responseutil.ErrorValidation(w, r, err)
 		return
 	}
 
@@ -145,11 +158,11 @@ func (h *HTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.tracing.LogError(span, err)
 
-		responseutil.ResponseError(w, r, err)
+		responseutil.ErrorInternal(w, r, err)
 		return
 	}
 
-	responseutil.ResponseCreated(w, r, &responseutil.ResponseSuccess{
+	responseutil.Created(w, r, &responseutil.Success{
 		Data: result,
 	})
 }
@@ -167,11 +180,11 @@ func (h *HTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Request) {
 		h.tracing.LogError(span, err)
 
 		if err.Error() == errorsutil.ErrEOF.Error() {
-			responseutil.ResponseBodyError(w, r, err)
+			responseutil.ErrorBody(w, r, err)
 			return
 		}
 
-		responseutil.ResponseErrorValidation(w, r, err)
+		responseutil.ErrorValidation(w, r, err)
 		return
 	}
 
@@ -185,15 +198,15 @@ func (h *HTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Request) {
 		h.tracing.LogError(span, err)
 
 		if err.Error() == errorsutil.ErrNotFound.Error() {
-			responseutil.ResponseNotFound(w, r, "Item not found")
+			responseutil.NotFound(w, r, "Item not found")
 			return
 		}
 
-		responseutil.ResponseError(w, r, err)
+		responseutil.ErrorInternal(w, r, err)
 		return
 	}
 
-	responseutil.ResponseOK(w, r, &responseutil.ResponseSuccess{
+	responseutil.ResponseOK(w, r, &responseutil.Success{
 		Data: responseutil.H{
 			"id": id,
 		},
@@ -214,15 +227,15 @@ func (h *HTTPHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {
 		h.tracing.LogError(span, err)
 
 		if err.Error() == errorsutil.ErrNotFound.Error() {
-			responseutil.ResponseNotFound(w, r, "Item not found")
+			responseutil.NotFound(w, r, "Item not found")
 			return
 		}
 
-		responseutil.ResponseError(w, r, err)
+		responseutil.ErrorInternal(w, r, err)
 		return
 	}
 
-	responseutil.ResponseOK(w, r, &responseutil.ResponseSuccess{
+	responseutil.ResponseOK(w, r, &responseutil.Success{
 		Data: responseutil.H{
 			"id": id,
 		},
