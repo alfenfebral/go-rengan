@@ -2,11 +2,11 @@ package mocks
 
 import mock "github.com/stretchr/testify/mock"
 
-type TodoAMQPPublisher struct {
+type AMQPPublisher struct {
 	mock.Mock
 }
 
 // Create provides a mock function with given fields: value
-func (_m *TodoAMQPPublisher) Create(value string) {
+func (_m *AMQPPublisher) Create(value string) {
 	_m.Called(value)
 }

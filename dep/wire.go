@@ -5,35 +5,35 @@
 package dep
 
 import (
-	pkg_amqp "go-rengan/pkg/amqp"
-	pkg_logger "go-rengan/pkg/logger"
-	pkg_mongodb "go-rengan/pkg/mongodb"
-	pkg_server "go-rengan/pkg/server"
-	pkg_http_server "go-rengan/pkg/server/http"
-	pkg_tracing "go-rengan/pkg/tracing"
-	todo_amqp_delivery "go-rengan/todo/delivery/amqp"
-	todo_http "go-rengan/todo/delivery/http"
-	todo_amqp_service "go-rengan/todo/publisher"
+	amqp "go-rengan/pkg/amqp"
+	logger "go-rengan/pkg/logger"
+	mongodb "go-rengan/pkg/mongodb"
+	server "go-rengan/pkg/server"
+	httpserver "go-rengan/pkg/server/http"
+	tracing "go-rengan/pkg/tracing"
+	todoamqpdelivery "go-rengan/todo/delivery/amqp"
+	todohttpdelivery "go-rengan/todo/delivery/http"
+	todoamqpservice "go-rengan/todo/publisher"
 	repository "go-rengan/todo/repository"
 	service "go-rengan/todo/service"
 
 	"github.com/google/wire"
 )
 
-func InitializeServer() (*pkg_server.ServerImpl, error) {
+func InitializeServer() (*server.ServerImpl, error) {
 	wire.Build(
-		pkg_amqp.NewAMQP,
-		pkg_tracing.NewTracing,
-		pkg_logger.NewLogger,
-		pkg_mongodb.NewMongoDB,
-		repository.NewMongoTodoRepository,
-		service.NewTodoService,
-		pkg_http_server.NewHTTPServer,
-		todo_http.NewTodoHTTPHandler,
-		todo_amqp_delivery.NewTodoAMQPConsumer,
-		todo_amqp_service.NewTodoAMQPPublisher,
-		pkg_server.NewServer,
+		amqp.New,
+		tracing.New,
+		logger.New,
+		mongodb.New,
+		repository.New,
+		service.New,
+		httpserver.New,
+		todohttpdelivery.New,
+		todoamqpdelivery.New,
+		todoamqpservice.New,
+		server.NewServer,
 	)
 
-	return &pkg_server.ServerImpl{}, nil
+	return &server.ServerImpl{}, nil
 }

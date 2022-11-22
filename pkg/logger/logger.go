@@ -1,4 +1,4 @@
-package pkg_logger
+package logger
 
 import (
 	"github.com/sirupsen/logrus"
@@ -12,18 +12,18 @@ type Logger interface {
 
 type LoggerImpl struct{}
 
-func NewLogger() Logger {
+func New() Logger {
 	return &LoggerImpl{}
 }
 
-func (logger *LoggerImpl) Error(args ...interface{}) {
+func (l *LoggerImpl) Error(args ...interface{}) {
 	logrus.Error(args...)
 }
 
-func (logger *LoggerImpl) Println(args ...interface{}) {
+func (l *LoggerImpl) Println(args ...interface{}) {
 	logrus.Println(args...)
 }
 
-func (logger *LoggerImpl) Printf(format string, args ...interface{}) {
+func (l *LoggerImpl) Printf(format string, args ...interface{}) {
 	logrus.Printf(format, args...)
 }

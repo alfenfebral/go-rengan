@@ -1,4 +1,4 @@
-package pkg_amqp
+package amqp
 
 import (
 	"context"

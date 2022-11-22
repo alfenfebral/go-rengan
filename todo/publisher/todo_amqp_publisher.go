@@ -1,33 +1,33 @@
-package todo_amqp_service
+package amqppublisher
 
 import (
 	"context"
 	"fmt"
 
-	pkg_amqp "go-rengan/pkg/amqp"
-	pkg_logger "go-rengan/pkg/logger"
-	pkg_tracing "go-rengan/pkg/tracing"
+	pkgamqp "go-rengan/pkg/amqp"
+	logger "go-rengan/pkg/logger"
+	tracing "go-rengan/pkg/tracing"
 
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel/trace"
 )
 
-type TodoAMQPPublisher interface {
+type AMQPPublisher interface {
 	Create(value string)
 }
 
-type TodoAMQPPublisherImpl struct {
-	logger  pkg_logger.Logger
-	tracing pkg_tracing.Tracing
-	channel pkg_amqp.AMQP
+type AMQPPublisherImpl struct {
+	logger  logger.Logger
+	tracing tracing.Tracing
+	channel pkgamqp.AMQP
 }
 
-func NewTodoAMQPPublisher(
-	logger pkg_logger.Logger,
-	tracing pkg_tracing.Tracing,
-	channel pkg_amqp.AMQP,
-) TodoAMQPPublisher {
-	return &TodoAMQPPublisherImpl{
+func New(
+	logger logger.Logger,
+	tracing tracing.Tracing,
+	channel pkgamqp.AMQP,
+) AMQPPublisher {
+	return &AMQPPublisherImpl{
 		logger:  logger,
 		tracing: tracing,
 		channel: channel,
@@ -35,7 +35,7 @@ func NewTodoAMQPPublisher(
 }
 
 // Create - publish amqp create
-func (publisherImpl *TodoAMQPPublisherImpl) Create(value string) {
+func (publisherImpl *AMQPPublisherImpl) Create(value string) {
 	ctx := context.Background()
 
 	messageName := "send_email"
@@ -58,7 +58,7 @@ func (publisherImpl *TodoAMQPPublisherImpl) Create(value string) {
 	}
 
 	// Inject the context in the headers
-	headers := pkg_amqp.InjectAMQPHeaders(ctx)
+	headers := pkgamqp.InjectAMQPHeaders(ctx)
 	body := value
 	msg := amqp.Publishing{
 		Headers:     headers,

@@ -1,4 +1,4 @@
-package pkg_http_server
+package httpserver
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	pkg_logger "go-rengan/pkg/logger"
+	logger "go-rengan/pkg/logger"
 	todo_http "go-rengan/todo/delivery/http"
 	response "go-rengan/utils/response"
 
@@ -27,12 +27,12 @@ type HTTPServer interface {
 type HTTPServerImpl struct {
 	router *chi.Mux
 	svr    *http.Server
-	logger pkg_logger.Logger
+	logger logger.Logger
 }
 
-func NewHTTPServer(
-	logger pkg_logger.Logger,
-	todoHandler todo_http.TodoHTTPHandler,
+func New(
+	logger logger.Logger,
+	todoHandler todo_http.HTTPHandler,
 ) HTTPServer {
 	router := chi.NewRouter()
 	router.Use(otelchi.Middleware(os.Getenv("APP_NAME"), otelchi.WithChiRoutes(router)))
@@ -66,29 +66,29 @@ func NewHTTPServer(
 }
 
 // PrintAllRoutes - Walk and print out all routes
-func (httpServerImpl *HTTPServerImpl) PrintAllRoutes() {
+func (hs *HTTPServerImpl) PrintAllRoutes() {
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
 		logrus.Printf("%s %s\n", method, route)
 		return nil
 	}
-	router := httpServerImpl.GetRouter()
+	router := hs.GetRouter()
 	if err := chi.Walk(router, walkFunc); err != nil {
-		httpServerImpl.logger.Error(err)
+		hs.logger.Error(err)
 	}
 }
 
 // Run - running server
-func (httpServerImpl *HTTPServerImpl) Run() error {
+func (hs *HTTPServerImpl) Run() error {
 	addr := fmt.Sprintf("%s%s", ":", os.Getenv("PORT"))
 	logrus.Infoln("HTTP server listening on", addr)
 
-	router := httpServerImpl.GetRouter()
-	httpServerImpl.svr = &http.Server{
+	router := hs.GetRouter()
+	hs.svr = &http.Server{
 		Addr:    addr,
 		Handler: router,
 	}
 
-	err := httpServerImpl.svr.ListenAndServe()
+	err := hs.svr.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		return err
 	}
@@ -97,10 +97,10 @@ func (httpServerImpl *HTTPServerImpl) Run() error {
 }
 
 // GracefulStop the server
-func (httpServerImpl *HTTPServerImpl) GracefulStop(ctx context.Context) error {
-	return httpServerImpl.svr.Shutdown(ctx)
+func (hs *HTTPServerImpl) GracefulStop(ctx context.Context) error {
+	return hs.svr.Shutdown(ctx)
 }
 
-func (httpServerImpl *HTTPServerImpl) GetRouter() *chi.Mux {
-	return httpServerImpl.router
+func (hs *HTTPServerImpl) GetRouter() *chi.Mux {
+	return hs.router
 }

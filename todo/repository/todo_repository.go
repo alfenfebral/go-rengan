@@ -5,7 +5,7 @@ import (
 	"errors"
 	"os"
 
-	pkg_mongodb "go-rengan/pkg/mongodb"
+	mongodb "go-rengan/pkg/mongodb"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,8 +15,8 @@ import (
 	"go-rengan/utils"
 )
 
-// MongoTodoRepository represent the todo repository contract
-type MongoTodoRepository interface {
+// Repository represent the todo repository contract
+type Repository interface {
 	FindAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, error)
 	CountFindAll(ctx context.Context, keyword string) (int, error)
 	FindById(ctx context.Context, id string) (*models.Todo, error)
@@ -26,19 +26,19 @@ type MongoTodoRepository interface {
 	Delete(ctx context.Context, id string) error
 }
 
-type MongoTodoRepositoryImpl struct {
-	mongoDB pkg_mongodb.MongoDB
+type RepositoryImpl struct {
+	mongoDB mongodb.MongoDB
 }
 
-// NewMongoTodoRepository will create an object that represent the TodoRepository interface
-func NewMongoTodoRepository(mongoDB pkg_mongodb.MongoDB) MongoTodoRepository {
-	return &MongoTodoRepositoryImpl{
+// New will create an object that represent the Repository interface
+func New(mongoDB mongodb.MongoDB) Repository {
+	return &RepositoryImpl{
 		mongoDB: mongoDB,
 	}
 }
 
 // FindAll - find all todo
-func (mongoImpl *MongoTodoRepositoryImpl) FindAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, error) {
+func (r *RepositoryImpl) FindAll(ctx context.Context, keyword string, limit int, offset int) ([]*models.Todo, error) {
 	var results []*models.Todo
 
 	// Pass these options to the Find method
@@ -46,7 +46,7 @@ func (mongoImpl *MongoTodoRepositoryImpl) FindAll(ctx context.Context, keyword s
 	findOptions.SetLimit(int64(limit))
 	findOptions.SetSkip(int64(offset))
 
-	client := mongoImpl.mongoDB.Get()
+	client := r.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 	cur, err := collection.Find(ctx, bson.M{"title": bson.M{"$regex": keyword, "$options": "i"}}, findOptions)
 	if err != nil {
@@ -78,8 +78,8 @@ func (mongoImpl *MongoTodoRepositoryImpl) FindAll(ctx context.Context, keyword s
 }
 
 // CountFindAll - count find all todo
-func (mongoImpl *MongoTodoRepositoryImpl) CountFindAll(ctx context.Context, keyword string) (int, error) {
-	client := mongoImpl.mongoDB.Get()
+func (r *RepositoryImpl) CountFindAll(ctx context.Context, keyword string) (int, error) {
+	client := r.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
 	total, err := collection.CountDocuments(ctx, bson.M{"title": bson.M{"$regex": keyword, "$options": "i"}})
@@ -91,13 +91,13 @@ func (mongoImpl *MongoTodoRepositoryImpl) CountFindAll(ctx context.Context, keyw
 }
 
 // FindById - find todo by id
-func (mongoImpl *MongoTodoRepositoryImpl) FindById(ctx context.Context, id string) (*models.Todo, error) {
+func (r *RepositoryImpl) FindById(ctx context.Context, id string) (*models.Todo, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
 
-	client := mongoImpl.mongoDB.Get()
+	client := r.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
 	result := &models.Todo{}
@@ -114,13 +114,13 @@ func (mongoImpl *MongoTodoRepositoryImpl) FindById(ctx context.Context, id strin
 }
 
 // CountFindByID - find count todo by id
-func (mongoImpl *MongoTodoRepositoryImpl) CountFindByID(ctx context.Context, id string) (int, error) {
+func (r *RepositoryImpl) CountFindByID(ctx context.Context, id string) (int, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return 0, errors.New("not found")
 	}
 
-	client := mongoImpl.mongoDB.Get()
+	client := r.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 	total, err := collection.CountDocuments(ctx, bson.M{"_id": docID})
 	if err != nil {
@@ -135,8 +135,8 @@ func (mongoImpl *MongoTodoRepositoryImpl) CountFindByID(ctx context.Context, id 
 }
 
 // Store - store todo
-func (mongoImpl *MongoTodoRepositoryImpl) Store(ctx context.Context, value *models.Todo) (*models.Todo, error) {
-	client := mongoImpl.mongoDB.Get()
+func (r *RepositoryImpl) Store(ctx context.Context, value *models.Todo) (*models.Todo, error) {
+	client := r.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
 	timeNow := utils.GetTimeNow()
@@ -162,13 +162,13 @@ func (mongoImpl *MongoTodoRepositoryImpl) Store(ctx context.Context, value *mode
 }
 
 // Update - update todo by id
-func (mongoImpl *MongoTodoRepositoryImpl) Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error) {
+func (r *RepositoryImpl) Update(ctx context.Context, id string, value *models.Todo) (*models.Todo, error) {
 	docID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, errors.New("not found")
 	}
 
-	client := mongoImpl.mongoDB.Get()
+	client := r.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
 	timeNow := utils.GetTimeNow()
@@ -190,8 +190,8 @@ func (mongoImpl *MongoTodoRepositoryImpl) Update(ctx context.Context, id string,
 }
 
 // Delete - delete todo by id
-func (mongoImpl *MongoTodoRepositoryImpl) Delete(ctx context.Context, id string) error {
-	client := mongoImpl.mongoDB.Get()
+func (r *RepositoryImpl) Delete(ctx context.Context, id string) error {
+	client := r.mongoDB.Get()
 	collection := client.Database(os.Getenv("DB_NAME")).Collection("todo")
 
 	docID, err := primitive.ObjectIDFromHex(id)

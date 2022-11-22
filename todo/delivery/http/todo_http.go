@@ -1,10 +1,10 @@
-package todo_http
+package httpdelivery
 
 import (
 	"net/http"
 
-	pkg_tracing "go-rengan/pkg/tracing"
-	pkg_validator "go-rengan/pkg/validator"
+	tracing "go-rengan/pkg/tracing"
+	validator "go-rengan/pkg/validator"
 	"go-rengan/todo/models"
 	"go-rengan/todo/service"
 	"go-rengan/utils"
@@ -14,7 +14,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-type TodoHTTPHandler interface {
+type HTTPHandler interface {
 	RegisterRoutes(router *chi.Mux)
 	GetAll(w http.ResponseWriter, r *http.Request)
 	GetByID(w http.ResponseWriter, r *http.Request)
@@ -23,20 +23,20 @@ type TodoHTTPHandler interface {
 	Delete(w http.ResponseWriter, r *http.Request)
 }
 
-type TodoHTTPHandlerImpl struct {
-	tracing     pkg_tracing.Tracing
-	todoService service.TodoService
+type HTTPHandlerImpl struct {
+	tracing     tracing.Tracing
+	todoService service.Service
 }
 
-// NewTodoHTTPHandler - make http handler
-func NewTodoHTTPHandler(tracing pkg_tracing.Tracing, service service.TodoService) TodoHTTPHandler {
-	return &TodoHTTPHandlerImpl{
+// New - make http handler
+func New(tracing tracing.Tracing, service service.Service) HTTPHandler {
+	return &HTTPHandlerImpl{
 		tracing:     tracing,
 		todoService: service,
 	}
 }
 
-func (handler *TodoHTTPHandlerImpl) RegisterRoutes(router *chi.Mux) {
+func (handler *HTTPHandlerImpl) RegisterRoutes(router *chi.Mux) {
 	router.Get("/todo", handler.GetAll)
 	router.Get("/todo/{id}", handler.GetByID)
 	router.Post("/todo", handler.Create)
@@ -45,15 +45,15 @@ func (handler *TodoHTTPHandlerImpl) RegisterRoutes(router *chi.Mux) {
 }
 
 // GetAll - get all todo http handler
-func (handler *TodoHTTPHandlerImpl) GetAll(w http.ResponseWriter, r *http.Request) {
-	ctx, span := handler.tracing.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.GetAll")
+func (h *HTTPHandlerImpl) GetAll(w http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracing.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.GetAll")
 	defer span.End()
 
 	qQuery := r.URL.Query().Get("q")
 	pageQuery := r.URL.Query().Get("page")
 	perPageQuery := r.URL.Query().Get("per_page")
 
-	err := pkg_validator.ValidateStruct(&models.TodoListRequest{
+	err := validator.ValidateStruct(&models.TodoListRequest{
 		Keywords: &models.SearchForm{
 			Keywords: qQuery,
 		},
@@ -61,7 +61,7 @@ func (handler *TodoHTTPHandlerImpl) GetAll(w http.ResponseWriter, r *http.Reques
 		PerPage: perPageQuery,
 	})
 	if err != nil {
-		handler.tracing.LogError(span, err)
+		h.tracing.LogError(span, err)
 
 		response.ResponseErrorValidation(w, r, err)
 		return
@@ -71,9 +71,9 @@ func (handler *TodoHTTPHandlerImpl) GetAll(w http.ResponseWriter, r *http.Reques
 	perPage := utils.PerPage(perPageQuery)
 	offset := utils.Offset(currentPage, perPage)
 
-	results, totalData, err := handler.todoService.GetAll(ctx, qQuery, perPage, offset)
+	results, totalData, err := h.todoService.GetAll(ctx, qQuery, perPage, offset)
 	if err != nil {
-		handler.tracing.LogError(span, err)
+		h.tracing.LogError(span, err)
 
 		response.ResponseError(w, r, err)
 		return
@@ -92,17 +92,17 @@ func (handler *TodoHTTPHandlerImpl) GetAll(w http.ResponseWriter, r *http.Reques
 }
 
 // GetByID - get todo by id http handler
-func (handler *TodoHTTPHandlerImpl) GetByID(w http.ResponseWriter, r *http.Request) {
-	ctx, span := handler.tracing.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.GetByID")
+func (h *HTTPHandlerImpl) GetByID(w http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracing.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.GetByID")
 	defer span.End()
 
 	// Get and filter id param
 	id := chi.URLParam(r, "id")
 
 	// Get detail
-	result, err := handler.todoService.GetByID(ctx, id)
+	result, err := h.todoService.GetByID(ctx, id)
 	if err != nil {
-		handler.tracing.LogError(span, err)
+		h.tracing.LogError(span, err)
 
 		if err.Error() == "not found" {
 			response.ResponseNotFound(w, r, "Item not found")
@@ -120,13 +120,13 @@ func (handler *TodoHTTPHandlerImpl) GetByID(w http.ResponseWriter, r *http.Reque
 }
 
 // Create - create todo http handler
-func (handler *TodoHTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
-	ctx, span := handler.tracing.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.Create")
+func (h *HTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracing.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.Create")
 	defer span.End()
 
 	data := &models.TodoRequest{}
 	if err := render.Bind(r, data); err != nil {
-		handler.tracing.LogError(span, err)
+		h.tracing.LogError(span, err)
 
 		if err.Error() == "EOF" {
 			response.ResponseBodyError(w, r, err)
@@ -137,12 +137,12 @@ func (handler *TodoHTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	result, err := handler.todoService.Create(ctx, &models.Todo{
+	result, err := h.todoService.Create(ctx, &models.Todo{
 		Title:       data.Title,
 		Description: data.Description,
 	})
 	if err != nil {
-		handler.tracing.LogError(span, err)
+		h.tracing.LogError(span, err)
 
 		response.ResponseError(w, r, err)
 		return
@@ -154,8 +154,8 @@ func (handler *TodoHTTPHandlerImpl) Create(w http.ResponseWriter, r *http.Reques
 }
 
 // Update - update todo by id http handler
-func (handler *TodoHTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Request) {
-	ctx, span := handler.tracing.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.Update")
+func (h *HTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracing.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.Update")
 	defer span.End()
 
 	// Get and filter id param
@@ -163,7 +163,7 @@ func (handler *TodoHTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Reques
 
 	data := &models.TodoRequest{}
 	if err := render.Bind(r, data); err != nil {
-		handler.tracing.LogError(span, err)
+		h.tracing.LogError(span, err)
 
 		if err.Error() == "EOF" {
 			response.ResponseBodyError(w, r, err)
@@ -175,13 +175,13 @@ func (handler *TodoHTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Edit data
-	_, err := handler.todoService.Update(ctx, id, &models.Todo{
+	_, err := h.todoService.Update(ctx, id, &models.Todo{
 		Title:       data.Title,
 		Description: data.Description,
 	})
 
 	if err != nil {
-		handler.tracing.LogError(span, err)
+		h.tracing.LogError(span, err)
 
 		if err.Error() == "not found" {
 			response.ResponseNotFound(w, r, "Item not found")
@@ -200,17 +200,17 @@ func (handler *TodoHTTPHandlerImpl) Update(w http.ResponseWriter, r *http.Reques
 }
 
 // Delete - delete todo by id http handler
-func (handler *TodoHTTPHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {
-	ctx, span := handler.tracing.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.Delete")
+func (h *HTTPHandlerImpl) Delete(w http.ResponseWriter, r *http.Request) {
+	ctx, span := h.tracing.GetTracerProvider().Tracer("todoHandler").Start(r.Context(), "todoHandler.Delete")
 	defer span.End()
 
 	// Get and filter id param
 	id := chi.URLParam(r, "id")
 
 	// Delete record
-	err := handler.todoService.Delete(ctx, id)
+	err := h.todoService.Delete(ctx, id)
 	if err != nil {
-		handler.tracing.LogError(span, err)
+		h.tracing.LogError(span, err)
 
 		if err.Error() == "not found" {
 			response.ResponseNotFound(w, r, "Item not found")

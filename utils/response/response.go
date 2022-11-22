@@ -1,7 +1,7 @@
 package utils
 
 import (
-	pkg_validator "go-rengan/pkg/validator"
+	validator "go-rengan/pkg/validator"
 	"net/http"
 
 	"github.com/go-chi/render"
@@ -33,7 +33,7 @@ func ResponseErrorValidation(w http.ResponseWriter, r *http.Request, err error) 
 		"success": false,
 		"code":    http.StatusBadRequest,
 		"message": "Validation errors in your request",
-		"errors":  pkg_validator.ValidatonError(err).Errors,
+		"errors":  validator.ValidatonError(err).Errors,
 	})
 }
 

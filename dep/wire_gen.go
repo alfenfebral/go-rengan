@@ -23,25 +23,25 @@ import (
 // Injectors from wire.go:
 
 func InitializeServer() (*server.ServerImpl, error) {
-	tracing, err := pkg_tracing.NewTracing()
+	tracingTracing, err := tracing.New()
 	if err != nil {
 		return nil, err
 	}
-	logger := pkg_logger.NewLogger()
-	amqp, err := pkg_amqp.NewAMQP()
+	loggerLogger := logger.New()
+	amqpAMQP, err := amqp.New()
 	if err != nil {
 		return nil, err
 	}
-	todoAMQPConsumer := todo_amqp_delivery.NewTodoAMQPConsumer(logger, tracing, amqp)
-	mongoDB, err := mongodb.NewMongoDB(logger)
+	amqpConsumer := amqpdelivery.New(loggerLogger, tracingTracing, amqpAMQP)
+	mongoDB, err := mongodb.New(loggerLogger)
 	if err != nil {
 		return nil, err
 	}
-	mongoTodoRepository := repository.NewMongoTodoRepository(mongoDB)
-	todoAMQPPublisher := todo_amqp_service.NewTodoAMQPPublisher(logger, tracing, amqp)
-	todoService := service.NewTodoService(tracing, mongoTodoRepository, todoAMQPPublisher)
-	todoHTTPHandler := todo_http.NewTodoHTTPHandler(tracing, todoService)
-	httpServer := pkg_http_server.NewHTTPServer(logger, todoHTTPHandler)
-	serverImpl := server.NewServer(tracing, logger, amqp, todoAMQPConsumer, mongoDB, httpServer)
+	repositoryRepository := repository.New(mongoDB)
+	amqpPublisher := amqppublisher.New(loggerLogger, tracingTracing, amqpAMQP)
+	serviceService := service.New(tracingTracing, repositoryRepository, amqpPublisher)
+	httpHandler := httpdelivery.New(tracingTracing, serviceService)
+	httpServer := httpserver.New(loggerLogger, httpHandler)
+	serverImpl := server.NewServer(tracingTracing, loggerLogger, amqpAMQP, amqpConsumer, mongoDB, httpServer)
 	return serverImpl, nil
 }

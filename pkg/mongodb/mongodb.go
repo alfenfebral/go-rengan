@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	pkg_logger "go-rengan/pkg/logger"
+	logger "go-rengan/pkg/logger"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -20,10 +20,10 @@ type MongoDB interface {
 type MongoDBImpl struct {
 	ctx    context.Context
 	client *mongo.Client
-	logger pkg_logger.Logger
+	logger logger.Logger
 }
 
-func NewMongoDB(logger pkg_logger.Logger) (MongoDB, error) {
+func New(logger logger.Logger) (MongoDB, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

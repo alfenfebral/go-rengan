@@ -3,41 +3,42 @@ package main
 import (
 	"context"
 	"go-rengan/dep"
-	pkg_config "go-rengan/pkg/config"
-	pkg_validator "go-rengan/pkg/validator"
+	config "go-rengan/pkg/config"
+	logger "go-rengan/pkg/logger"
+	validator "go-rengan/pkg/validator"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
 func main() {
+	logger := logger.New()
+
 	// Config
-	pkg_config.NewConfig()
+	config.New()
 
 	// Validator
-	pkg_validator.NewValidator()
+	validator.New()
 
 	// Server
 	server, err := dep.InitializeServer()
 	if err != nil {
-		logrus.Error(err)
+		logger.Error(err)
 	}
 
 	defer server.Tracing.ShutDown()
 	defer server.AMQP.Get().Close()
 	defer func() {
 		if err := server.MongoDB.Disconnect(); err != nil {
-			logrus.Error(err)
+			logger.Error(err)
 		}
 	}()
 
 	go func() {
 		err := server.Run()
 		if err != nil {
-			logrus.Error(err)
+			logger.Error(err)
 		}
 	}()
 

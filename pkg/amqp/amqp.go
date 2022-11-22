@@ -1,4 +1,4 @@
-package pkg_amqp
+package amqp
 
 import (
 	"os"
@@ -14,7 +14,7 @@ type AMQPImpl struct {
 	channel *amqp.Channel
 }
 
-func NewAMQP() (AMQP, error) {
+func New() (AMQP, error) {
 	connection, err := amqp.Dial(os.Getenv("AMQP_URL"))
 	if err != nil {
 		return nil, err
@@ -30,6 +30,6 @@ func NewAMQP() (AMQP, error) {
 	}, err
 }
 
-func (amqpImpl *AMQPImpl) Get() *amqp.Channel {
-	return amqpImpl.channel
+func (a *AMQPImpl) Get() *amqp.Channel {
+	return a.channel
 }

@@ -1,52 +1,52 @@
-package todo_amqp_delivery
+package amqpdelivery
 
 import (
 	"context"
 
-	pkg_amqp "go-rengan/pkg/amqp"
-	pkg_logger "go-rengan/pkg/logger"
-	pkg_tracing "go-rengan/pkg/tracing"
+	pkgamqp "go-rengan/pkg/amqp"
+	logger "go-rengan/pkg/logger"
+	tracing "go-rengan/pkg/tracing"
 
 	"go.opentelemetry.io/otel/trace"
 )
 
-type TodoAMQPConsumer interface {
+type AMQPConsumer interface {
 	Create()
 	Register()
 }
 
-// TodoAMQPConsumerImpl represent the amqp
-type TodoAMQPConsumerImpl struct {
-	logger  pkg_logger.Logger
-	tracing pkg_tracing.Tracing
-	channel pkg_amqp.AMQP
+// AMQPConsumerImpl represent the amqp
+type AMQPConsumerImpl struct {
+	logger  logger.Logger
+	tracing tracing.Tracing
+	channel pkgamqp.AMQP
 }
 
-// NewTodoAMQPConsumer - make amqp consumer
-func NewTodoAMQPConsumer(
-	logger pkg_logger.Logger,
-	tracing pkg_tracing.Tracing,
-	channel pkg_amqp.AMQP,
-) TodoAMQPConsumer {
-	return &TodoAMQPConsumerImpl{
+// New - make amqp consumer
+func New(
+	logger logger.Logger,
+	tracing tracing.Tracing,
+	channel pkgamqp.AMQP,
+) AMQPConsumer {
+	return &AMQPConsumerImpl{
 		logger:  logger,
 		tracing: tracing,
 		channel: channel,
 	}
 }
 
-func (consumer *TodoAMQPConsumerImpl) Register() {
-	consumer.Create()
+func (c *AMQPConsumerImpl) Register() {
+	c.Create()
 }
 
 // Create - create todo consumer
-func (consumer *TodoAMQPConsumerImpl) Create() {
+func (c *AMQPConsumerImpl) Create() {
 	messageName := "send_email"
 
-	channel := consumer.channel.Get()
+	channel := c.channel.Get()
 	q, err := channel.QueueDeclare(messageName, true, false, false, false, nil)
 	if err != nil {
-		consumer.logger.Error(err)
+		c.logger.Error(err)
 	}
 
 	msgs, err := channel.Consume(
@@ -59,24 +59,24 @@ func (consumer *TodoAMQPConsumerImpl) Create() {
 		nil,
 	)
 	if err != nil {
-		consumer.logger.Error(err)
+		c.logger.Error(err)
 	}
-	consumer.logger.Println("Consumer listen to queue name", messageName)
+	c.logger.Println("Consumer listen to queue name", messageName)
 
 	for d := range msgs {
-		ctx := pkg_amqp.ExtractAMQPHeaders(context.Background(), d.Headers)
+		ctx := pkgamqp.ExtractAMQPHeaders(context.Background(), d.Headers)
 
-		tr := consumer.tracing.Tracer("amqp")
+		tr := c.tracing.Tracer("amqp")
 		opts := []trace.SpanStartOption{
 			trace.WithSpanKind(trace.SpanKindConsumer),
 		}
 		_, span := tr.Start(ctx, "AMQP - consume - todo.create", opts...)
 
-		consumer.logger.Printf("Send email to: %s", d.Body)
+		c.logger.Printf("Send email to: %s", d.Body)
 
 		err := d.Ack(false)
 		if err != nil {
-			consumer.logger.Error(err)
+			c.logger.Error(err)
 		}
 
 		span.End()

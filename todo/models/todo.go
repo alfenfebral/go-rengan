@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	pkg_validator "go-rengan/pkg/validator"
+	"go-rengan/pkg/validator"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -25,7 +25,7 @@ type TodoRequest struct {
 }
 
 func (request *TodoRequest) Bind(r *http.Request) error {
-	return pkg_validator.ValidateStruct(request)
+	return validator.ValidateStruct(request)
 }
 
 // TodoListRequest - form for list validation

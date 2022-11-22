@@ -1,4 +1,4 @@
-package todo_http_test
+package httpdelivery_test
 
 import (
 	"bytes"
@@ -9,11 +9,11 @@ import (
 	"os"
 	"testing"
 
-	pkg_validator "go-rengan/pkg/validator"
+	validator "go-rengan/pkg/validator"
 
-	pkg_tracing "go-rengan/pkg/tracing"
-	todo_http "go-rengan/todo/delivery/http"
-	mockService "go-rengan/todo/mocks/service"
+	tracing "go-rengan/pkg/tracing"
+	httpdelivery "go-rengan/todo/delivery/http"
+	mockservice "go-rengan/todo/mocks/service"
 
 	"go-rengan/todo/models"
 
@@ -37,15 +37,15 @@ func TestNewTodoHTTPHandler(t *testing.T) {
 	os.Setenv("APP_NAME", "go-rengan")
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
-	pkg_validator.NewValidator()
+	validator.New()
 
-	tracing, err := pkg_tracing.NewTracing()
+	tracing, err := tracing.New()
 	assert.NoError(t, err)
 
-	mockService := new(mockService.TodoService)
-	mockService.On("Create", mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
+	mockservice := new(mockservice.Service)
+	mockservice.On("Create", mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
 
-	handler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+	handler := httpdelivery.New(tracing, mockservice)
 	router := chi.NewMux()
 	handler.RegisterRoutes(router)
 }
@@ -57,18 +57,18 @@ func TestTodoGetAll(t *testing.T) {
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	t.Run(WhenError400Validation, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodGet, "/api/v1/todo?page=-1&per_page=-1", nil)
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
+		mockservice := new(mockservice.Service)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetAll)
@@ -79,23 +79,23 @@ func TestTodoGetAll(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 
 	t.Run(WhenError500Service, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodGet, "/api/v1/todo?page=1&per_page=10", nil)
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, 1, ErrDefault)
+		mockservice := new(mockservice.Service)
+		mockservice.On("GetAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(nil, 1, ErrDefault)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetAll)
@@ -106,11 +106,11 @@ func TestTodoGetAll(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 
 	t.Run(WhenSuccess200OK, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodGet, "/api/v1/todo?page=1&per_page=10", nil)
 		assert.NoError(t, err)
@@ -119,13 +119,13 @@ func TestTodoGetAll(t *testing.T) {
 		mockListTodo := make([]*models.Todo, 0)
 		mockListTodo = append(mockListTodo, &models.Todo{})
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("GetAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(mockListTodo, 1, nil)
+		mockservice := new(mockservice.Service)
+		mockservice.On("GetAll", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("int"), mock.AnythingOfType("int")).Return(mockListTodo, 1, nil)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetAll)
@@ -136,7 +136,7 @@ func TestTodoGetAll(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 }
 
@@ -147,18 +147,18 @@ func TestTodoCreate(t *testing.T) {
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	t.Run(WhenError400EOF, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodPost, "/api/v1/todo", bytes.NewReader([]byte("")))
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
+		mockservice := new(mockservice.Service)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Create)
@@ -170,7 +170,7 @@ func TestTodoCreate(t *testing.T) {
 	})
 
 	t.Run("when return 400 bad request (error validation) ", func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		mockPostBody := map[string]interface{}{
 			"title":       "",
@@ -182,12 +182,12 @@ func TestTodoCreate(t *testing.T) {
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
+		mockservice := new(mockservice.Service)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Create)
@@ -199,7 +199,7 @@ func TestTodoCreate(t *testing.T) {
 	})
 
 	t.Run("when error 500 internal error (error service)", func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		mockPostBody := map[string]interface{}{
 			"title":       "lorem ipsum",
@@ -211,13 +211,13 @@ func TestTodoCreate(t *testing.T) {
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("Create", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(nil, errors.New(""))
+		mockservice := new(mockservice.Service)
+		mockservice.On("Create", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(nil, errors.New(""))
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Create)
@@ -228,11 +228,11 @@ func TestTodoCreate(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 
 	t.Run("when return 201 created", func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		mockPostBody := map[string]interface{}{
 			"title":       "lorem ipsum",
@@ -244,13 +244,13 @@ func TestTodoCreate(t *testing.T) {
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("Create", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
+		mockservice := new(mockservice.Service)
+		mockservice.On("Create", mock.Anything, mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Create)
@@ -261,7 +261,7 @@ func TestTodoCreate(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 }
 
@@ -272,19 +272,19 @@ func TestTodoGetByID(t *testing.T) {
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	t.Run(WhenError404NotFound, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodGet, "/api/v1/todo?id=1", nil)
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrNotFound)
+		mockservice := new(mockservice.Service)
+		mockservice.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrNotFound)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetByID)
@@ -295,22 +295,22 @@ func TestTodoGetByID(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 	t.Run(WhenError500Service, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodGet, "/api/v1/todo?id=1", nil)
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrDefault)
+		mockservice := new(mockservice.Service)
+		mockservice.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(nil, ErrDefault)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetByID)
@@ -321,22 +321,22 @@ func TestTodoGetByID(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 	t.Run(WhenSuccess200OK, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodGet, "/api/v1/todo?id=1", nil)
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(&models.Todo{}, nil)
+		mockservice := new(mockservice.Service)
+		mockservice.On("GetByID", mock.Anything, mock.AnythingOfType("string")).Return(&models.Todo{}, nil)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.GetByID)
@@ -347,7 +347,7 @@ func TestTodoGetByID(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 }
 
@@ -358,19 +358,19 @@ func TestTodoUpdate(t *testing.T) {
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	t.Run(WhenError400EOF, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodPut, "/api/v1/product?id=1", bytes.NewReader([]byte("")))
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
+		mockservice := new(mockservice.Service)
+		mockservice.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Update)
@@ -381,7 +381,7 @@ func TestTodoUpdate(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
 	})
 	t.Run(WhenError400Validation, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		mockPostBody := map[string]interface{}{
 			"title":       "",
@@ -393,12 +393,12 @@ func TestTodoUpdate(t *testing.T) {
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
+		mockservice := new(mockservice.Service)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Update)
@@ -409,10 +409,10 @@ func TestTodoUpdate(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 	t.Run(WhenError404NotFound, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		mockPostBody := map[string]interface{}{
 			"title":       "a",
@@ -424,13 +424,13 @@ func TestTodoUpdate(t *testing.T) {
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrNotFound)
+		mockservice := new(mockservice.Service)
+		mockservice.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrNotFound)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Update)
@@ -441,10 +441,10 @@ func TestTodoUpdate(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 	t.Run(WhenError500Service, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		mockPostBody := map[string]interface{}{
 			"title":       "a",
@@ -456,13 +456,13 @@ func TestTodoUpdate(t *testing.T) {
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
+		mockservice := new(mockservice.Service)
+		mockservice.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(nil, ErrDefault)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Update)
@@ -473,10 +473,10 @@ func TestTodoUpdate(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 	t.Run(WhenSuccess200OK, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		mockPostBody := map[string]interface{}{
 			"title":       "a",
@@ -488,13 +488,13 @@ func TestTodoUpdate(t *testing.T) {
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
+		mockservice := new(mockservice.Service)
+		mockservice.On("Update", mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("*models.Todo")).Return(&models.Todo{}, nil)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Update)
@@ -505,7 +505,7 @@ func TestTodoUpdate(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 }
 
@@ -516,19 +516,19 @@ func TestTodoDelete(t *testing.T) {
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
 
 	t.Run(WhenError404NotFound, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodDelete, "/api/v1/product?id=", nil)
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrNotFound)
+		mockservice := new(mockservice.Service)
+		mockservice.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrNotFound)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Delete)
@@ -538,19 +538,19 @@ func TestTodoDelete(t *testing.T) {
 		assert.Equal(t, http.StatusNotFound, rr.Code)
 	})
 	t.Run(WhenError500Service, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodDelete, "/api/v1/todo?id=1", nil)
 		assert.NoError(t, err)
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrDefault)
+		mockservice := new(mockservice.Service)
+		mockservice.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(ErrDefault)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Delete)
@@ -560,23 +560,23 @@ func TestTodoDelete(t *testing.T) {
 		assert.Equal(t, http.StatusInternalServerError, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 	t.Run(WhenSuccess200OK, func(t *testing.T) {
-		pkg_validator.NewValidator()
+		validator.New()
 
 		req, err := http.NewRequest(http.MethodDelete, "/api/v1/todo?id=1", nil)
 		assert.NoError(t, err)
 
 		req.Header.Set("Content-Type", "application/json")
 
-		tracing, err := pkg_tracing.NewTracing()
+		tracing, err := tracing.New()
 		assert.NoError(t, err)
 
-		mockService := new(mockService.TodoService)
-		mockService.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(nil)
+		mockservice := new(mockservice.Service)
+		mockservice.On("Delete", mock.Anything, mock.AnythingOfType("string")).Return(nil)
 
-		todoHandler := todo_http.NewTodoHTTPHandler(tracing, mockService)
+		todoHandler := httpdelivery.New(tracing, mockservice)
 
 		rr := httptest.NewRecorder()
 		handler := http.HandlerFunc(todoHandler.Delete)
@@ -587,6 +587,6 @@ func TestTodoDelete(t *testing.T) {
 		assert.Equal(t, http.StatusOK, rr.Code)
 
 		// Check if the mock called
-		mockService.AssertExpectations(t)
+		mockservice.AssertExpectations(t)
 	})
 }

@@ -1,4 +1,4 @@
-package pkg_validator
+package validator
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ type CommonError struct {
 	Errors map[string]interface{} `json:"errors"`
 }
 
-func NewValidator() *Validator {
+func New() *Validator {
 	validate = validator.New()
 
 	return &Validator{}

@@ -1,4 +1,4 @@
-package pkg_tracing
+package tracing
 
 import (
 	"context"
@@ -46,7 +46,7 @@ func tracerProvider(url string) (*trace_sdk.TracerProvider, error) {
 	return tp, nil
 }
 
-func NewTracing() (Tracing, error) {
+func New() (Tracing, error) {
 	tp, err := tracerProvider(os.Getenv("TRACER_PROVIDER_URL"))
 	if err != nil {
 		return nil, err
@@ -62,23 +62,23 @@ func NewTracing() (Tracing, error) {
 	}, nil
 }
 
-func (tracingImpl *TracingImpl) GetTracerProvider() *trace_sdk.TracerProvider {
-	return tracingImpl.tp
+func (t *TracingImpl) GetTracerProvider() *trace_sdk.TracerProvider {
+	return t.tp
 }
 
-func (tracingImpl *TracingImpl) ShutDown() {
-	if err := tracingImpl.tp.Shutdown(context.Background()); err != nil {
+func (t *TracingImpl) ShutDown() {
+	if err := t.tp.Shutdown(context.Background()); err != nil {
 		log.Printf("Error shutting down tracer provider: %v", err)
 	}
 }
 
-func (tracingImpl *TracingImpl) LogError(span trace.Span, err error) {
+func (t *TracingImpl) LogError(span trace.Span, err error) {
 	span.SetAttributes(
 		attribute.Key("error").Bool(true),
 	)
 	span.RecordError(err)
 }
 
-func (tracingImpl *TracingImpl) Tracer(name string) trace.Tracer {
+func (t *TracingImpl) Tracer(name string) trace.Tracer {
 	return otel.Tracer(name)
 }

@@ -1,24 +1,24 @@
-package pkg_amqp
+package amqp
 
 type AmqpHeadersCarrier map[string]interface{}
 
-func (carrier AmqpHeadersCarrier) Get(key string) string {
-	v, ok := carrier[key]
+func (c AmqpHeadersCarrier) Get(key string) string {
+	v, ok := c[key]
 	if !ok {
 		return ""
 	}
 	return v.(string)
 }
 
-func (carrier AmqpHeadersCarrier) Set(key string, value string) {
-	carrier[key] = value
+func (c AmqpHeadersCarrier) Set(key string, value string) {
+	c[key] = value
 }
 
-func (carrier AmqpHeadersCarrier) Keys() []string {
+func (c AmqpHeadersCarrier) Keys() []string {
 	i := 0
-	r := make([]string, len(carrier))
+	r := make([]string, len(c))
 
-	for k := range carrier {
+	for k := range c {
 		r[i] = k
 		i++
 	}
