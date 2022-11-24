@@ -230,7 +230,7 @@ func TestUpdate(t *testing.T) {
 	})
 }
 
-func TestTodoDelete(t *testing.T) {
+func TestDelete(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")

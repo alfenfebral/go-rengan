@@ -8,10 +8,10 @@ import (
 	"os"
 	"testing"
 
+	tracing "go-rengan/pkg/tracing"
 	validator "go-rengan/pkg/validator"
 	errorsutil "go-rengan/utils/errors"
 
-	tracing "go-rengan/pkg/tracing"
 	httpdelivery "go-rengan/todo/delivery/http"
 	mockservice "go-rengan/todo/mocks/service"
 
@@ -30,7 +30,7 @@ var WhenError404NotFound string = "when return 404 not found (resouce not found)
 var WhenSuccess201Created string = "when return 201 created"
 var WhenSuccess200OK string = "when return 200 ok"
 
-func TestNewTodoHTTPHandler(t *testing.T) {
+func TestNew(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
@@ -48,8 +48,8 @@ func TestNewTodoHTTPHandler(t *testing.T) {
 	handler.RegisterRoutes(router)
 }
 
-// TestTodoGetAll - testing GetAll [200]
-func TestTodoGetAll(t *testing.T) {
+// TestGetAll - testing GetAll [200]
+func TestGetAll(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
@@ -138,8 +138,8 @@ func TestTodoGetAll(t *testing.T) {
 	})
 }
 
-// TestTodoCreate - testing create [201]
-func TestTodoCreate(t *testing.T) {
+// TestCreate - testing create [201]
+func TestCreate(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
@@ -263,8 +263,8 @@ func TestTodoCreate(t *testing.T) {
 	})
 }
 
-// TestTodoGetByID - testing GetByID [200]
-func TestTodoGetByID(t *testing.T) {
+// TestGetByID - testing GetByID [200]
+func TestGetByID(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
@@ -349,8 +349,8 @@ func TestTodoGetByID(t *testing.T) {
 	})
 }
 
-// TestTodoUpdate - testing update [200]
-func TestTodoUpdate(t *testing.T) {
+// TestUpdate - testing update [200]
+func TestUpdate(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
@@ -508,7 +508,7 @@ func TestTodoUpdate(t *testing.T) {
 }
 
 // TestDeleteSuccess - testing delete [200]
-func TestTodoDelete(t *testing.T) {
+func TestDelete(t *testing.T) {
 	os.Setenv("APP_ID", "1")
 	os.Setenv("APP_NAME", "go-rengan")
 	os.Setenv("TRACER_PROVIDER_URL", "http://project2_secret_token@localhost:14317/2")
